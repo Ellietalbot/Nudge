@@ -41,3 +41,7 @@ example
 # generated native folders
 /ios
 /android
+
+# secrets (never commit API keys)
+.env
+.env.*
