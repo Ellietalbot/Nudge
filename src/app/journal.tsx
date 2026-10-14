@@ -1,9 +1,10 @@
+import { Screen } from "@/components/screen";
 import { EmptyState, JournalCover } from "@/design-system";
 import { router } from "expo-router";
 
 export default function Journal() {
   return (
-    <>
+    <Screen>
       <JournalCover name="My Journal" found={0} />
       <EmptyState
         title="No discoveries yet!"
@@ -13,6 +14,6 @@ export default function Journal() {
           onPress: () => router.push("/explore"),
         }}
       />
-    </>
+    </Screen>
   );
 }

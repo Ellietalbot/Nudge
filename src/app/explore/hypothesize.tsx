@@ -1,10 +1,11 @@
+import { Screen } from "@/components/screen";
 import { BackLink, HypothesisBuilder, StepProgress } from "@/design-system";
 import { router } from "expo-router";
 import { View } from "react-native";
 
 export default function Hypothesize() {
   return (
-    <>
+    <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
         <StepProgress current={3} />
@@ -21,6 +22,6 @@ export default function Hypothesize() {
         ]}
         onDone={() => router.push("/explore/investigate")}
       />
-    </>
+    </Screen>
   );
 }

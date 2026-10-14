@@ -1,3 +1,4 @@
+import { Screen } from "@/components/screen";
 import { BackLink, PromptCard, StepProgress } from "@/design-system";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -7,7 +8,7 @@ export default function Reflect() {
   const [text, setText] = useState("");
 
   return (
-    <>
+    <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
         <StepProgress current={5} />
@@ -21,6 +22,6 @@ export default function Reflect() {
         onChangeText={setText}
         onSave={() => router.push("/journal")}
       />
-    </>
+    </Screen>
   );
 }

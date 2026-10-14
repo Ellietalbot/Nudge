@@ -1,10 +1,11 @@
+import { Screen } from "@/components/screen";
 import { BackLink, InvestigationCard, StepProgress } from "@/design-system";
 import { router } from "expo-router";
 import { View } from "react-native";
 
 export default function Investigate() {
   return (
-    <>
+    <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
         <StepProgress current={4} />
@@ -37,6 +38,6 @@ export default function Investigate() {
         ]}
         onDone={() => router.push("/explore/reflect")}
       />
-    </>
+    </Screen>
   );
 }
