@@ -9,14 +9,14 @@ export default function Observe() {
   return (
     <>
       <View>
-        <BackLink onPress={() => {}} />
+        <BackLink onPress={() => router.back()} />
         <StepProgress current={1} />
       </View>
 
       <PromptCard
         stepId="observe"
         question="What do you notice?"
-        example="I notice that the leaves are changing color."
+        example="that the leaves are changing color."
         photo
         value={text}
         onChangeText={setText}
