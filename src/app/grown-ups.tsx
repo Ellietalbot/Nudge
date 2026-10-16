@@ -51,7 +51,7 @@ export default function GrownUps() {
           />
         </>
       )}
-      {mode === "enter" &&  (
+      {mode === "enter" && (
         <>
           <Text variant="heading">Enter your PIN</Text>
           <TextInput
@@ -78,8 +78,7 @@ export default function GrownUps() {
             }}
           />
         </>
-      )
-      }
+      )}
       {mode === "unlocked" && <Text variant="heading">Grown-Ups Only</Text>}
     </Screen>
   );
