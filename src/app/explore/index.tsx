@@ -5,7 +5,7 @@ import { router } from "expo-router";
 export default function Index() {
   return (
     <Screen>
-      <AIDisclosure onDone={() => router.push("/explore/observe")} />
+      <AIDisclosure onDone={() => router.push("/explore/camera")} />
     </Screen>
   );
 }

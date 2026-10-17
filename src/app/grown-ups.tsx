@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { StyleSheet, TextInput } from "react-native";
 
+
 export default function GrownUps() {
   const [mode, setMode] = useState<"loading" | "setup" | "enter" | "unlocked">(
     "loading",
