@@ -1,5 +1,6 @@
 import { Screen } from "@/components/screen";
 import { Button, Text } from "@/design-system";
+import { askNudge } from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
@@ -22,8 +23,24 @@ export default function Camera() {
           "approx kb:",
           Math.round((base64Photo.length * 0.75) / 1024),
         );
+        const reply = await askNudge([
+          {
+            role: "user",
+            content: [
+              {
+                type: "image",
+                source: { type: "base64", media_type: "image/jpeg", data: base64Photo },
+              },
+              {
+                type: "text",
+                text: "What is in this photo? Answer in one sentence.",
+              },
+            ],
+          },
+        ]);
+        console.log("Claude sees:", reply);
       } catch (error) {
-        console.error("Error preparing photo:", error);
+        console.error("Photo test failed", error);
       }
       setPhotoUri(photo.uri);
     } else {
