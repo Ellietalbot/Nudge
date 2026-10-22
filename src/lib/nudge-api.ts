@@ -10,7 +10,7 @@ type ImageBlock = {
 type ContentBlock = TextBlock | ImageBlock;
 type Message = { role: "user" | "assistant"; content: string | ContentBlock[]};
 
-export async function askNudge(messages: Message[]): Promise<string> {
+export async function askNudge(messages: Message[], system?:string): Promise<string> {
   const url = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/claude-proxy`;
   const apiKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -28,7 +28,7 @@ export async function askNudge(messages: Message[]): Promise<string> {
       apikey: `${apiKey}`,
       "content-type": "application/json",
     },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, system }),
   });
 
   const data = await res.json();

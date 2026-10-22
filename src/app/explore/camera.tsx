@@ -6,6 +6,7 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Image, Linking } from "react-native";
+import { OBSERVE_PROMPT } from "@/lib/prompts";
 
 export default function Camera() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -33,11 +34,11 @@ export default function Camera() {
               },
               {
                 type: "text",
-                text: "What is in this photo? Answer in one sentence.",
+                text: "Look what I found!",
               },
             ],
           },
-        ]);
+        ], OBSERVE_PROMPT);
         console.log("Claude sees:", reply);
       } catch (error) {
         console.error("Photo test failed", error);
