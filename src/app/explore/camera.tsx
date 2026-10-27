@@ -1,12 +1,9 @@
 import { Screen } from "@/components/screen";
 import { Button, Text } from "@/design-system";
-import { askNudge } from "@/lib/nudge-api";
-import { preparePhoto } from "@/lib/photo";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Image, Linking } from "react-native";
-import { OBSERVE_PROMPT } from "@/lib/prompts";
 
 export default function Camera() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -16,36 +13,7 @@ export default function Camera() {
   async function takePhoto() {
     const photo = await cameraRef.current?.takePictureAsync();
     if (photo) {
-      // TEMPORARY
-      try {
-        const base64Photo = await preparePhoto(photo.uri);
-        console.log("base64 length:", base64Photo.length);
-        console.log(
-          "approx kb:",
-          Math.round((base64Photo.length * 0.75) / 1024),
-        );
-        const reply = await askNudge([
-          {
-            role: "user",
-            content: [
-              {
-                type: "image",
-                source: { type: "base64", media_type: "image/jpeg", data: base64Photo },
-              },
-              {
-                type: "text",
-                text: "Look what I found!",
-              },
-            ],
-          },
-        ], OBSERVE_PROMPT);
-        console.log("Claude sees:", reply);
-      } catch (error) {
-        console.error("Photo test failed", error);
-      }
       setPhotoUri(photo.uri);
-    } else {
-      console.error("Failed to take photo");
     }
   }
 
