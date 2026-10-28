@@ -1,5 +1,10 @@
+import { ExplorationProvider } from "@/lib/exploration-context";
 import { Stack } from "expo-router";
 
 export default function Explore() {
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <ExplorationProvider>
+      <Stack screenOptions={{ headerShown: false }} />
+    </ExplorationProvider>
+  );
 }

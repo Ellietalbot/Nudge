@@ -8,9 +8,15 @@ type ImageBlock = {
   };
 };
 type ContentBlock = TextBlock | ImageBlock;
-type Message = { role: "user" | "assistant"; content: string | ContentBlock[]};
+export type Message = {
+  role: "user" | "assistant";
+  content: string | ContentBlock[];
+};
 
-export async function askNudge(messages: Message[], system?:string): Promise<string> {
+export async function askNudge(
+  messages: Message[],
+  system?: string,
+): Promise<string> {
   const url = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/claude-proxy`;
   const apiKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
@@ -38,7 +44,4 @@ export async function askNudge(messages: Message[], system?:string): Promise<str
   }
 
   return data.text;
-
-  // 5. If res.ok is false, throw an Error using data.error
-  // 6. Otherwise, return the text field
 }
