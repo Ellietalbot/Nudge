@@ -6,21 +6,24 @@ import {
   SkeletonCard,
   StepProgress,
 } from "@/design-system";
-import { askNudge } from "@/lib/nudge-api";
+import { askNudge, Message } from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, View } from "react-native";
+import { useExploration } from "@/lib/exploration-context";
 
 export default function Observe() {
   const [text, setText] = useState("");
   const [reply, setReply] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const [photoMessage, setPhotoMessage] = useState<Message | null>(null);
   const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
     photoUri ? "loading" : "idle",
   );
+  const { addMessages, reset } = useExploration();
 
   useEffect(() => {
     if (!photoUri) return;
@@ -29,32 +32,26 @@ export default function Observe() {
     async function lookAtPhoto(uri: string) {
       try {
         const base64Photo = await preparePhoto(uri);
-        const answer = await askNudge(
-          [
+        const firstMessage: Message = {
+          role: "user",
+          content: [
             {
-              role: "user",
-              content: [
-                {
-                  type: "image",
-                  source: {
-                    type: "base64",
-                    media_type: "image/jpeg",
-                    data: base64Photo,
-                  },
-                },
-                {
-                  type: "text",
-                  text: "Look what I found!",
-                },
-              ],
+              type: "image",
+              source: {
+                type: "base64",
+                media_type: "image/jpeg",
+                data: base64Photo,
+              },
             },
+            { type: "text", text: "Look what I found!" },
           ],
-          OBSERVE_PROMPT,
-        );
+        };
+        const answer = await askNudge([firstMessage], OBSERVE_PROMPT);
 
         console.log("Nudge says:", answer);
         if (!cancelled) {
           setReply(answer);
+          setPhotoMessage(firstMessage);
           setStatus("ready");
         }
       } catch (error) {
@@ -72,6 +69,16 @@ export default function Observe() {
     };
   }, [photoUri, attempt]);
 
+  function handleSave() {
+    if (!photoMessage) return;
+    reset();
+    addMessages(
+      photoMessage,
+      { role: "assistant", content: reply },
+      { role: "user", content: `I noticed ${text}` },
+    );
+    router.push("/explore/ask");
+  }
   let card;
 
   if (status === "loading") {
@@ -97,7 +104,7 @@ export default function Observe() {
         onAddPhoto={() => router.push("/explore/camera")}
         value={text}
         onChangeText={setText}
-        onSave={() => router.push("/explore/ask")}
+        onSave={handleSave}
       />
     );
   }
