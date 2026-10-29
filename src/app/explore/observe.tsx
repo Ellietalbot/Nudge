@@ -1,6 +1,7 @@
 import { Screen } from "@/components/screen";
 import {
   BackLink,
+  Button,
   ErrorState,
   PromptCard,
   SafetyCard,
@@ -21,10 +22,14 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, View } from "react-native";
 
+// Photos Nudge can't explore: show the reply and a retake button instead of the text box.
+const RETAKE_OBJECTS = ["unclear", "person", "private"];
+
 export default function Observe() {
   const [text, setText] = useState("");
   const [reply, setReply] = useState("");
   const [safety, setSafety] = useState<NudgeSafety>("none");
+  const [object, setObject] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [photoMessage, setPhotoMessage] = useState<Message | null>(null);
   const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
@@ -61,6 +66,7 @@ export default function Observe() {
         if (!cancelled) {
           setReply(result.reply);
           setSafety(result.safety);
+          setObject(result.object);
           setPhotoMessage(firstMessage);
           setStatus("ready");
         }
@@ -111,6 +117,16 @@ export default function Observe() {
       <View style={{ gap: 16 }}>
         <SafetyCard level="stop" />
         <Text variant="reading">{reply}</Text>
+      </View>
+    );
+  } else if (RETAKE_OBJECTS.includes(object)) {
+    card = (
+      <View style={{ gap: 16 }}>
+        <Text variant="reading">{reply}</Text>
+        <Button
+          label="Take a new photo"
+          onPress={() => router.replace("/explore/camera")}
+        />
       </View>
     );
   } else {
