@@ -3,11 +3,18 @@ import {
   BackLink,
   ErrorState,
   PromptCard,
+  SafetyCard,
   SkeletonCard,
   StepProgress,
+  Text,
 } from "@/design-system";
 import { useExploration } from "@/lib/exploration-context";
-import { askNudge, Message } from "@/lib/nudge-api";
+import {
+  askNudge,
+  Message,
+  NudgeSafety,
+  parseObserveReply,
+} from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
 import { router, useLocalSearchParams } from "expo-router";
@@ -17,6 +24,7 @@ import { Image, View } from "react-native";
 export default function Observe() {
   const [text, setText] = useState("");
   const [reply, setReply] = useState("");
+  const [safety, setSafety] = useState<NudgeSafety>("none");
   const [attempt, setAttempt] = useState(0);
   const [photoMessage, setPhotoMessage] = useState<Message | null>(null);
   const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
@@ -46,11 +54,13 @@ export default function Observe() {
             { type: "text", text: "Look what I found!" },
           ],
         };
-        const answer = await askNudge([firstMessage], OBSERVE_PROMPT);
+        const raw = await askNudge([firstMessage], OBSERVE_PROMPT);
+        const result = parseObserveReply(raw);
 
-        console.log("Nudge says:", answer);
+        console.log("Nudge says:", result);
         if (!cancelled) {
-          setReply(answer);
+          setReply(result.reply);
+          setSafety(result.safety);
           setPhotoMessage(firstMessage);
           setStatus("ready");
         }
@@ -94,6 +104,15 @@ export default function Observe() {
         body="Check that you are connected to the internet, then try again."
       />
     );
+  } else if (safety === "stop") {
+    // Distress or inappropriate content: no text box and no Save button,
+    // so the child can't continue the exploration from here.
+    card = (
+      <View style={{ gap: 16 }}>
+        <SafetyCard level="stop" />
+        <Text variant="reading">{reply}</Text>
+      </View>
+    );
   } else {
     card = (
       <PromptCard
@@ -115,10 +134,16 @@ export default function Observe() {
         <BackLink onPress={() => router.back()} />
         <StepProgress current={1} />
       </View>
-      {photoUri && (
+      {photoUri && safety !== "stop" && (
         <Image
           source={{ uri: photoUri }}
           style={{ height: 240, borderRadius: 24 }}
+        />
+      )}
+      {status === "ready" && safety !== "none" && safety !== "stop" && (
+        <SafetyCard
+          level={safety}
+          compact={safety === "caution" || safety === "askAdult"}
         />
       )}
       {card}
