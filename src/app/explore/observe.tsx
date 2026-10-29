@@ -6,13 +6,13 @@ import {
   SkeletonCard,
   StepProgress,
 } from "@/design-system";
+import { useExploration } from "@/lib/exploration-context";
 import { askNudge, Message } from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, View } from "react-native";
-import { useExploration } from "@/lib/exploration-context";
 
 export default function Observe() {
   const [text, setText] = useState("");
