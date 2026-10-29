@@ -7,7 +7,7 @@ import { withSupabase } from "@supabase/server";
 
 // The model is chosen HERE, on the server, so the app can't switch to a
 // pricier one. To change models later, edit this one line and redeploy.
-const MODEL = "claude-haiku-4-5";
+const MODEL = "claude-haiku-5-5";
 const MAX_TOKENS = 1024; // upper limit on reply length (keeps costs predictable)
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
@@ -19,7 +19,10 @@ export default {
       return Response.json({ error: "Use POST" }, { status: 405 });
     }
     if (!ANTHROPIC_API_KEY) {
-      return Response.json({ error: "ANTHROPIC_API_KEY secret is not set" }, { status: 500 });
+      return Response.json(
+        { error: "ANTHROPIC_API_KEY secret is not set" },
+        { status: 500 },
+      );
     }
 
     // Expected body: { system?: string, messages: [{ role, content }, ...] }
@@ -30,7 +33,10 @@ export default {
       return Response.json({ error: "Body must be JSON" }, { status: 400 });
     }
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
-      return Response.json({ error: "messages must be a non-empty array" }, { status: 400 });
+      return Response.json(
+        { error: "messages must be a non-empty array" },
+        { status: 400 },
+      );
     }
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -51,7 +57,10 @@ export default {
     const data = await res.json();
     if (!res.ok) {
       console.error("Claude API error", res.status, data);
-      return Response.json({ error: data?.error?.message ?? "Claude API error" }, { status: res.status });
+      return Response.json(
+        { error: data?.error?.message ?? "Claude API error" },
+        { status: res.status },
+      );
     }
 
     // Return just the text, which is all the app needs.
