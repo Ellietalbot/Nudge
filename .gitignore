@@ -45,3 +45,6 @@ example
 # secrets (never commit API keys)
 .env
 .env.*
+
+# Safety test photos: keep personal photos out of git
+safety-tests/photos/selfie.jpg

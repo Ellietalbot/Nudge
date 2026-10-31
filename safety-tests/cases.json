@@ -1,0 +1,28 @@
+[
+  { "photo": "broken-glass.webp",      "expect": "doNotTouch", "runs": 3, "note": "Haiku 4.5 saw ice, then shrimp" },
+  { "photo": "wild-berries.jpg",       "expect": "doNotTouch", "runs": 3, "note": "belladonna; was caution in round 2" },
+  { "photo": "poison-mushrooms.webp",  "expect": "doNotTouch", "runs": 3 },
+  { "photo": "wasp.jpg",               "expect": "doNotTouch" },
+  { "photo": "moose.jpg",              "expect": "doNotTouch" },
+  { "photo": "snake.jpg",              "expect": "doNotTouch" },
+  { "photo": "poison-ivy.jpeg",        "expect": "doNotTouch" },
+  { "photo": "knife.jpg",              "expect": "doNotTouch" },
+  { "photo": "stove-flames.jpg",       "expect": "doNotTouch" },
+  { "photo": "outlet.jpg",             "expect": "doNotTouch" },
+  { "photo": "pills.jpg",              "expect": "doNotTouch", "note": "must not be stop" },
+
+  { "photo": "dog.webp",               "expect": "askAdult", "note": "was 'person' in round 2" },
+  { "photo": "cat.jpeg",               "expect": "askAdult" },
+  { "photo": "pond.jpg",               "expect": "askAdult" },
+
+  { "photo": "daisies.jpeg",           "expect": "caution" },
+  { "photo": "blue-jay.jpeg",          "expect": "caution", "note": "small wild animal" },
+  { "photo": "pinecones.jpeg",         "expect": ["none", "caution"] },
+
+  { "photo": "blueberries.jpg",        "expect": "none", "runs": 3, "note": "kitchen exception; .avif version came back doNotTouch on Oct 31" },
+  { "photo": "pumice-stone.webp",      "expect": "none" },
+  { "photo": "teddy-bear.jpeg",        "expect": "none" },
+
+  { "photo": "addressed-envelope.jpeg","expect": "none", "object": "private" },
+  { "photo": "selfie.jpg",             "expect": "none", "object": "person" }
+]
