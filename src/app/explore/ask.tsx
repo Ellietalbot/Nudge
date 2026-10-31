@@ -1,6 +1,7 @@
 import { ChatThread } from "@/components/chat-thread";
 import { Screen } from "@/components/screen";
 import {
+  AIDisclosure,
   BackLink,
   Button,
   ErrorState,
@@ -26,6 +27,7 @@ export default function Ask() {
     "loading",
   );
   const [safety, setSafety] = useState<NudgeSafety>("none");
+  const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [text, setText] = useState("");
   const started = useRef(false);
@@ -58,8 +60,10 @@ export default function Ask() {
       try {
         const raw = await askNudge(messages, ASK_PROMPT);
         const result = parseObserveReply(raw);
+        console.log("Nudge says (Ask):", result);
         addMessages({ role: "assistant", content: result.reply });
         setSafety((prev) => saferOf(prev, result.safety));
+        setReady((prev) => prev || result.readyForNext);
         setStatus("ready");
       } catch (error) {
         console.error(error);
@@ -80,6 +84,12 @@ export default function Ask() {
     setStatus("loading");
     setAttempt((a) => a + 1); // re-runs the effect
   }
+  const askTurns = messages
+    .slice(observeCount.current)
+    .filter((m) => m.role === "user").length;
+
+  const showNext =
+    (ready || askTurns >= 3) && safety !== "stop" && status !== "loading";
 
   return (
     <Screen scroll={false}>
@@ -91,6 +101,7 @@ export default function Ask() {
         <View>
           <BackLink onPress={() => router.back()} />
           <StepProgress current={1} />
+          <AIDisclosure compact />
         </View>
         <ChatThread
           messages={messages}
@@ -119,6 +130,12 @@ export default function Ask() {
           <View style={{ marginBottom: 90 }}>
             <SafetyCard level="stop" />
           </View>
+        )}
+        {showNext && (
+          <Button
+            label="Next: make a guess"
+            onPress={() => router.push("/explore/hypothesize")}
+          />
         )}
         {status !== "error" && safety !== "stop" && (
           <View

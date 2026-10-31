@@ -13,7 +13,11 @@ export function Screen({
     <SafeAreaView style={styles.screen} edges={["top"]}>
       {scroll ? (
         // TODO: the existing ScrollView, unchanged
-        <ScrollView contentContainerStyle={styles.content}>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          automaticallyAdjustKeyboardInsets
+          keyboardShouldPersistTaps="handled"
+        >
           {children}
         </ScrollView>
       ) : (
