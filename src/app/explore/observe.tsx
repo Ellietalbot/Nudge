@@ -148,7 +148,7 @@ export default function Observe() {
     <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
-        <StepProgress current={1} />
+        <StepProgress current={0} />
       </View>
       {photoUri && safety !== "stop" && (
         <Image
