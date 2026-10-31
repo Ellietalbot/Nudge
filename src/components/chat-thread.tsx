@@ -6,7 +6,7 @@ import {
     TypingIndicator,
 } from "@/design-system";
 import { Message } from "@/lib/nudge-api";
-import React from "react";
+import React, { useRef } from "react";
 import { Image, ScrollView } from "react-native";
 
 function MessageBubble({ msg }: { msg: Message }) {
@@ -48,14 +48,18 @@ export function ChatThread({
   dividerAfter: number;
   loading: boolean;
 }) {
+  const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   return (
     <ScrollView
       style={{ flex: 1 }}
       contentContainerStyle={{
         gap: 12,
         paddingVertical: 16,
-        paddingBottom: 120,
       }}
+      ref={scrollRef}
+      onContentSizeChange={() =>
+        scrollRef.current?.scrollToEnd({ animated: true })
+      }
     >
       {messages.map((msg, i) => (
         <React.Fragment key={i}>
