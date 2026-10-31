@@ -4,11 +4,17 @@ import {
   BackLink,
   Button,
   ErrorState,
+  SafetyCard,
   StepProgress,
   TextField,
 } from "@/design-system";
 import { useExploration } from "@/lib/exploration-context";
-import { askNudge, NudgeSafety, parseObserveReply } from "@/lib/nudge-api";
+import {
+  askNudge,
+  NudgeSafety,
+  parseObserveReply,
+  saferOf,
+} from "@/lib/nudge-api";
 import { ASK_PROMPT } from "@/lib/prompts";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -53,7 +59,7 @@ export default function Ask() {
         const raw = await askNudge(messages, ASK_PROMPT);
         const result = parseObserveReply(raw);
         addMessages({ role: "assistant", content: result.reply });
-        setSafety(result.safety);
+        setSafety((prev) => saferOf(prev, result.safety));
         setStatus("ready");
       } catch (error) {
         console.error(error);
@@ -91,17 +97,30 @@ export default function Ask() {
           dividerAfter={observeCount.current}
           loading={status === "loading"}
         />
-        {status === "error" && (
-          <ErrorState
-            title="Oops! Nudge couldn't answer"
-            body="Check that you are connected to the internet, then try again."
-            onRetry={() => {
-              setStatus("loading");
-              setAttempt((a) => a + 1);
-            }}
+        {safety !== "none" && safety !== "stop" && (
+          <SafetyCard
+            level={safety}
+            compact={safety === "caution" || safety === "askAdult"}
           />
         )}
-        {status !== "error" && (
+        {status === "error" && (
+          <View style={{ marginBottom: 90 }}>
+            <ErrorState
+              title="Oops! Nudge couldn't answer"
+              body="Check that you are connected to the internet, then try again."
+              onRetry={() => {
+                setStatus("loading");
+                setAttempt((a) => a + 1);
+              }}
+            />
+          </View>
+        )}
+        {safety === "stop" && (
+          <View style={{ marginBottom: 90 }}>
+            <SafetyCard level="stop" />
+          </View>
+        )}
+        {status !== "error" && safety !== "stop" && (
           <View
             style={{
               flexDirection: "row",
