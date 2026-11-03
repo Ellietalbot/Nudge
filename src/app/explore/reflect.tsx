@@ -11,7 +11,7 @@ export default function Reflect() {
     <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
-        <StepProgress current={5} />
+        <StepProgress current={4} />
       </View>
 
       <PromptCard

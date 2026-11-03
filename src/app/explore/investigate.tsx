@@ -8,7 +8,7 @@ export default function Investigate() {
     <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
-        <StepProgress current={4} />
+        <StepProgress current={3} />
       </View>
 
       <InvestigationCard

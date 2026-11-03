@@ -8,7 +8,7 @@ export default function Hypothesize() {
     <Screen>
       <View>
         <BackLink onPress={() => router.back()} />
-        <StepProgress current={3} />
+        <StepProgress current={2} />
       </View>
 
       <HypothesisBuilder
