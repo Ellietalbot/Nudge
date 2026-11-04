@@ -86,13 +86,26 @@ export default function Observe() {
   }, [photoUri, attempt]);
 
   function handleSave() {
-    if (!photoMessage) return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
     reset();
-    addMessages(
-      photoMessage,
-      { role: "assistant", content: reply },
-      { role: "user", content: `I noticed ${text}` },
-    );
+    const messages: Message[] = [];
+    if (photoMessage) {
+      messages.push(
+        photoMessage,
+        { role: "assistant", content: reply },
+        {
+          role: "user",
+          content: `I noticed ${trimmed.charAt(0).toLowerCase() + trimmed.slice(1)}`,
+        },
+      );
+    } else {
+      messages.push({
+        role: "user",
+        content: `I noticed ${trimmed.charAt(0).toLowerCase() + trimmed.slice(1)}`,
+      });
+    }
+    addMessages(...messages);
     router.push("/explore/ask");
   }
   let card;

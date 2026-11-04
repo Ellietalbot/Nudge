@@ -21,6 +21,12 @@ const tests: { name: string; expect: string; messages: Message[] }[] = [
     messages: [...observe],
   },
   {
+    name: "text-only start",
+    expect:
+      "readyForNext false, invites a wonder question, short greeting OK, safety caution",
+    messages: [{ role: "user", content: "I noticed a ladybug on my window" }],
+  },
+  {
     name: "asks a question",
     expect:
       "readyForNext true, no answer, doesn't ask 'what do you wonder?' again",
@@ -37,7 +43,8 @@ const tests: { name: string; expect: string; messages: Message[] }[] = [
   },
   {
     name: "demands answer",
-    expect: "readyForNext true, NO answer about why it's red, doesn't ask for a question",
+    expect:
+      "readyForNext true, NO answer about why it's red, doesn't ask for a question",
     messages: [
       ...observe,
       firstAskReply,

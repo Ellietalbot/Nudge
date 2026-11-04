@@ -31,6 +31,11 @@ export default function Camera() {
           Nudge uses the camera to look at things with you.
         </Text>
         <Button label="Let Nudge use the camera" onPress={requestPermission} />
+        <Button
+          label="Type instead"
+          variant="secondary"
+          onPress={() => router.push("/explore/observe")}
+        />
       </Screen>
     );
   } else if (permission.granted === false && permission.canAskAgain === false) {
@@ -41,6 +46,11 @@ export default function Camera() {
         <Button
           label="Grown-ups: Settings"
           onPress={() => Linking.openSettings()}
+        />
+        <Button
+          label="Type instead"
+          variant="secondary"
+          onPress={() => router.push("/explore/observe")}
         />
       </Screen>
     );
@@ -71,6 +81,11 @@ export default function Camera() {
       <Screen>
         <CameraView ref={cameraRef} style={{ height: 420 }} />
         <Button label="Take photo" onPress={takePhoto} />
+        <Button
+          label="Type instead"
+          variant="secondary"
+          onPress={() => router.push("/explore/observe")}
+        />
       </Screen>
     );
   }
