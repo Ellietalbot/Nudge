@@ -39,22 +39,31 @@ export default {
       );
     }
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: MAX_TOKENS,
-        ...(body.system ? { system: body.system } : {}),
-        messages: body.messages,
-      }),
-    });
+    // Reaching Claude can fail (network trouble, or a reply that isn't JSON).
+    // Catch it here so the logs say what happened and the app gets a clear 502.
+    let res: Response;
+    let data;
+    try {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: MAX_TOKENS,
+          ...(body.system ? { system: body.system } : {}),
+          messages: body.messages,
+        }),
+      });
 
-    const data = await res.json();
+      data = await res.json();
+    } catch (err) {
+      console.error("Couldn't reach Claude", err);
+      return Response.json({ error: "Couldn't reach Claude" }, { status: 502 });
+    }
     if (!res.ok) {
       console.error("Claude API error", res.status, data);
       return Response.json(
