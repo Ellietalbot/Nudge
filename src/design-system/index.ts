@@ -6,6 +6,7 @@ export * from './tokens';
 export * from './fonts';
 export * from './icons';
 export * from './NudgeFace';
+export * from './Illustration';
 export * from './stepIcons';
 export * from './useReduceMotion';
 export * from './Text';

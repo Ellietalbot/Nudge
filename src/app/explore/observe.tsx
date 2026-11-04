@@ -5,9 +5,9 @@ import {
   ErrorState,
   PromptCard,
   SafetyCard,
-  SkeletonCard,
   StepProgress,
   Text,
+  ThinkingState,
 } from "@/design-system";
 import { useExploration } from "@/lib/exploration-context";
 import {
@@ -111,7 +111,7 @@ export default function Observe() {
   let card;
 
   if (status === "loading") {
-    card = <SkeletonCard />;
+    card = <ThinkingState title="Nudge is taking a look…" />;
   } else if (status === "error") {
     card = (
       <ErrorState

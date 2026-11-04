@@ -2,8 +2,10 @@
  * Screen states: empty, error and loading.
  *
  *   EmptyState    nothing here yet. Friendly, dashed paper box, one clear next step.
+ *   ThinkingState Nudge is working on a reply: the thinking robot and one short line.
  *   ErrorState    the app hiccuped. Same calm sand "problem" look as ProblemToast.
  *                 Never the child's fault, and their work is always safe.
+ *                 Shows the robot holding a spanner: Nudge is fixing it, not the child.
  *                 Default copy:
  *                   title: "Your journal didn't load"
  *                   body:  "Nudge couldn't reach the internet. Your discoveries are safe."
@@ -14,7 +16,7 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, View, type DimensionValue } from 'react-native';
 
 import { Button } from './Button';
-import { IconCloudOff } from './icons';
+import { Illustration } from './Illustration';
 import { Text } from './Text';
 import { useReduceMotion } from './useReduceMotion';
 import { palette, radius, space, status } from './tokens';
@@ -56,12 +58,36 @@ export type ErrorStateProps = {
 export function ErrorState({ title, body, onRetry }: ErrorStateProps) {
   return (
     <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.box, styles.error]}>
-      <View style={styles.errorTile}>
-        <IconCloudOff size={36} color={palette.navy} />
+      <View style={styles.illustration}>
+        <Illustration name="robotHolding" size={112} />
       </View>
       <Text variant="title" align="center" style={styles.title}>{title}</Text>
       <Text variant="reading" color={palette.navyMuted} align="center" style={styles.body}>{body}</Text>
       {onRetry && <Button label="Try again" onPress={onRetry} variant="primary" />}
+    </View>
+  );
+}
+
+// ── Thinking state ────────────────────────────────────────────────────────────
+
+export type ThinkingStateProps = {
+  /** e.g. "Nudge is taking a look…" */
+  title?: string;
+};
+
+export function ThinkingState({ title = 'Nudge is thinking…' }: ThinkingStateProps) {
+  return (
+    <View
+      accessible
+      accessibilityLabel={title}
+      accessibilityState={{ busy: true }}
+      accessibilityLiveRegion="polite"
+      style={[styles.box, styles.thinking]}
+    >
+      <View style={styles.illustration}>
+        <Illustration name="robotThinking" size={120} />
+      </View>
+      <Text variant="title" align="center">{title}</Text>
     </View>
   );
 }
@@ -129,16 +155,8 @@ const styles = StyleSheet.create({
   },
   empty: { backgroundColor: palette.paper, borderStyle: 'dashed', borderColor: dashedEdge },
   error: { backgroundColor: status.problem.bg, borderColor: status.problem.edge },
+  thinking: { backgroundColor: palette.paper, borderColor: 'rgba(0, 54, 98, 0.08)' },
   illustration: { marginBottom: space[5] },
-  errorTile: {
-    width: 80,
-    height: 80,
-    borderRadius: radius.xl,
-    backgroundColor: status.problem.iconBg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: space[5],
-  },
   title: { marginBottom: space[2] },
   body: { maxWidth: 320, marginBottom: space[6] },
   skeletonCard: {
