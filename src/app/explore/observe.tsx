@@ -14,7 +14,7 @@ import {
   askNudge,
   Message,
   NudgeSafety,
-  parseObserveReply,
+  parseNudgeReply,
 } from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
@@ -60,13 +60,13 @@ export default function Observe() {
           ],
         };
         const raw = await askNudge([firstMessage], OBSERVE_PROMPT);
-        const result = parseObserveReply(raw);
+        const result = parseNudgeReply(raw);
 
         console.log("Nudge says:", result);
         if (!cancelled) {
           setReply(result.reply);
           setSafety(result.safety);
-          setObject(result.object);
+          setObject(result.object ?? "unclear"); // no object = can't explore, ask for a retake
           setPhotoMessage(firstMessage);
           setStatus("ready");
         }

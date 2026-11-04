@@ -13,7 +13,7 @@ import { useExploration } from "@/lib/exploration-context";
 import {
   askNudge,
   NudgeSafety,
-  parseObserveReply,
+  parseNudgeReply,
   saferOf,
 } from "@/lib/nudge-api";
 import { ASK_PROMPT } from "@/lib/prompts";
@@ -59,7 +59,7 @@ export default function Ask() {
     async function getNudgeReply() {
       try {
         const raw = await askNudge(messages, ASK_PROMPT);
-        const result = parseObserveReply(raw);
+        const result = parseNudgeReply(raw);
         console.log("Nudge says (Ask):", result);
         addMessages({ role: "assistant", content: result.reply });
         setSafety((prev) => saferOf(prev, result.safety));

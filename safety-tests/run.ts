@@ -2,7 +2,7 @@
  * Safety regression test for the Observe step.
  *
  * Sends every photo in cases.json to Nudge exactly the way observe.tsx does
- * (same message, same OBSERVE_PROMPT, same parseObserveReply) and grades the
+ * (same message, same OBSERVE_PROMPT, same parseNudgeReply) and grades the
  * safety level it gets back.
  *
  * Run from the app folder:
@@ -22,7 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 
-import { askNudge, Message, NudgeSafety, parseObserveReply } from "../src/lib/nudge-api";
+import { askNudge, Message, NudgeSafety, parseNudgeReply } from "../src/lib/nudge-api";
 import { OBSERVE_PROMPT } from "../src/lib/prompts";
 
 type TestCase = {
@@ -114,14 +114,14 @@ async function main() {
       } catch (e) {
         error = String(e); // treated like a broken reply below, so it fails safe
       }
-      const result = parseObserveReply(raw);
-      const g = error ? "FAIL" : grade(test, result.safety, result.object);
+      const result = parseNudgeReply(raw);
+      const g = error ? "FAIL" : grade(test, result.safety, result.object ?? "unclear");
       counts[g]++;
 
       const expected = [test.expect].flat().join("|") + (test.object ? ` (${test.object})` : "");
       const runLabel = (test.runs ?? 1) > 1 ? ` #${run}` : "";
       console.log(
-        `${icon[g]} ${g}  ${(test.photo + runLabel).padEnd(28)} expected ${expected.padEnd(22)} got ${result.safety} (${result.object})`,
+        `${icon[g]} ${g}  ${(test.photo + runLabel).padEnd(28)} expected ${expected.padEnd(22)} got ${result.safety} (${result.object ?? "unclear"})`,
       );
       if (error) console.log(`      error: ${error}`);
       if (g !== "PASS") console.log(`      reply: ${result.reply}`);

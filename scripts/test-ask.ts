@@ -1,4 +1,4 @@
-import { askNudge, Message, parseObserveReply } from "../src/lib/nudge-api";
+import { askNudge, Message, parseNudgeReply } from "../src/lib/nudge-api";
 import { ASK_PROMPT } from "../src/lib/prompts/ask";
 
 // The Observe part every test starts with.
@@ -70,7 +70,7 @@ const tests: { name: string; expect: string; messages: Message[] }[] = [
 async function main() {
   for (const t of tests) {
     const raw = await askNudge(t.messages, ASK_PROMPT);
-    const result = parseObserveReply(raw);
+    const result = parseNudgeReply(raw);
     console.log(`\n=== ${t.name} ===`);
     console.log(`expect: ${t.expect}`);
     console.log(

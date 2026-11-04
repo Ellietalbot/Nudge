@@ -4,7 +4,7 @@
  *   TopBar     Back on the left, compact step progress on the right.
  *   tabColors  colours for the app's bottom tabs.
  *
- * Tabs: the app's NativeTabs (expo-router/unstable-native-tabs) should have exactly three
+ * Tabs: the app's NativeTabs (expo-router/native-tabs) should have exactly three
  * tabs: Explore (compass), Journal (open book) and Grown-ups (lock, behind the grown-up PIN).
  * Active tab = navy pill behind a white icon with a navy label; inactive = muted navy.
  */

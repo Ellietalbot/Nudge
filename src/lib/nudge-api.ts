@@ -53,8 +53,9 @@ export type NudgeSafety =
   | "doNotTouch"
   | "stop";
 
-export type ObserveResult = {
-  object: string;
+// object: only Observe asks for it, so it's missing on Ask replies.
+export type NudgeResult = {
+  object?: string;
   safety: NudgeSafety;
   reply: string;
   readyForNext: boolean;
@@ -75,7 +76,7 @@ export function saferOf(a: NudgeSafety, b: NudgeSafety): NudgeSafety {
 const FALLBACK_REPLY =
   "Let's look closely without touching! What do you notice?";
 
-export function parseObserveReply(raw: string): ObserveResult {
+export function parseNudgeReply(raw: string): NudgeResult {
   try {
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
@@ -91,7 +92,7 @@ export function parseObserveReply(raw: string): ObserveResult {
         : FALLBACK_REPLY;
 
     return {
-      object: String(data.object ?? "unclear"),
+      ...(data.object != null ? { object: String(data.object) } : {}),
       safety,
       reply,
       readyForNext: data.readyForNext === true,
@@ -99,7 +100,6 @@ export function parseObserveReply(raw: string): ObserveResult {
   } catch {
     // Not valid JSON at all: fail safe, not silent.
     return {
-      object: "unclear",
       safety: "doNotTouch",
       reply: FALLBACK_REPLY,
       readyForNext: false,
