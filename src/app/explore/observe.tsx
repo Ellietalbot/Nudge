@@ -9,10 +9,13 @@ import {
   Text,
   ThinkingState,
 } from "@/design-system";
+import { ERROR_COPY } from "@/lib/error-copy";
 import { useExploration } from "@/lib/exploration-context";
 import {
   askNudge,
   Message,
+  NudgeError,
+  NudgeErrorKind,
   NudgeSafety,
   parseNudgeReply,
 } from "@/lib/nudge-api";
@@ -37,6 +40,7 @@ export default function Observe() {
     photoUri ? "loading" : "idle",
   );
   const { addMessages, reset } = useExploration();
+  const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
 
   useEffect(() => {
     if (!photoUri) return;
@@ -73,6 +77,7 @@ export default function Observe() {
       } catch (error) {
         if (!cancelled) {
           console.error(error);
+          setErrorKind(error instanceof NudgeError ? error.kind : "server");
           setStatus("error");
         }
       }
@@ -119,8 +124,8 @@ export default function Observe() {
           setStatus("loading");
           setAttempt((a) => a + 1);
         }}
-        title="Oops! Nudge couldn’t see that"
-        body="Check that you are connected to the internet, then try again."
+        title={ERROR_COPY[errorKind].title}
+        body={ERROR_COPY[errorKind].body}
       />
     );
   } else if (safety === "stop") {

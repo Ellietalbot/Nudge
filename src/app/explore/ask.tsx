@@ -9,9 +9,12 @@ import {
   StepProgress,
   TextField,
 } from "@/design-system";
+import { ERROR_COPY } from "@/lib/error-copy";
 import { useExploration } from "@/lib/exploration-context";
 import {
   askNudge,
+  NudgeError,
+  NudgeErrorKind,
   NudgeSafety,
   parseNudgeReply,
   saferOf,
@@ -33,6 +36,8 @@ export default function Ask() {
   const started = useRef(false);
   const observeCount = useRef(messages.length);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
+
   useEffect(() => {
     const show = Keyboard.addListener("keyboardWillShow", () =>
       setKeyboardOpen(true),
@@ -68,6 +73,7 @@ export default function Ask() {
       } catch (error) {
         console.error(error);
         started.current = false;
+        setErrorKind(error instanceof NudgeError ? error.kind : "server");
         setStatus("error");
       }
     }
@@ -117,8 +123,8 @@ export default function Ask() {
         {status === "error" && (
           <View style={{ marginBottom: 90 }}>
             <ErrorState
-              title="Oops! Nudge couldn't answer"
-              body="Check that you are connected to the internet, then try again."
+              title={ERROR_COPY[errorKind].title}
+              body={ERROR_COPY[errorKind].body}
               onRetry={() => {
                 setStatus("loading");
                 setAttempt((a) => a + 1);

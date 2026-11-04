@@ -13,6 +13,16 @@ export type Message = {
   content: string | ContentBlock[];
 };
 
+export type NudgeErrorKind = "offline" | "timeout" | "server";
+
+export class NudgeError extends Error {
+  kind: NudgeErrorKind;
+  constructor(kind: NudgeErrorKind, message?: string) {
+    super(message ?? kind);
+    this.kind = kind;
+  }
+}
+
 export async function askNudge(
   messages: Message[],
   system?: string,
@@ -28,22 +38,42 @@ export async function askNudge(
       "Missing Supabase URL or API key in environment variables.",
     );
   }
-  const res = await fetch(url, {
-    method: "POST",
-    headers: {
-      apikey: `${apiKey}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({ messages, system }),
-  });
 
-  const data = await res.json();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-  if (!res.ok) {
-    throw new Error(data.error);
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        apikey: `${apiKey}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({ messages, system }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      throw new NudgeError("server", `Proxy returned ${res.status}`);
+    }
+
+    const data = await res.json();
+    return data.text;
+  } catch (err) {
+    if (err instanceof NudgeError) {
+      throw err;
+    } else if (err instanceof Error && err.name === "AbortError") {
+      throw new NudgeError("timeout", "Request timed out.");
+    } else if (err instanceof TypeError) {
+      throw new NudgeError("offline", err.message);
+    } else if (err instanceof Error) {
+      throw new NudgeError("server", err.message);
+    } else {
+      throw new NudgeError("server", "An unknown error occurred.");
+    }
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return data.text;
 }
 
 export type NudgeSafety =
@@ -53,7 +83,6 @@ export type NudgeSafety =
   | "doNotTouch"
   | "stop";
 
-// object: only Observe asks for it, so it's missing on Ask replies.
 export type NudgeResult = {
   object?: string;
   safety: NudgeSafety;
@@ -98,7 +127,6 @@ export function parseNudgeReply(raw: string): NudgeResult {
       readyForNext: data.readyForNext === true,
     };
   } catch {
-    // Not valid JSON at all: fail safe, not silent.
     return {
       safety: "doNotTouch",
       reply: FALLBACK_REPLY,
