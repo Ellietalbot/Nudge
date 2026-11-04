@@ -1,10 +1,16 @@
 import type { WordBank } from "@/design-system";
+import type { Message } from "./nudge-api";
 import { SAFETY_LEVELS, type NudgeSafety } from "./nudge-api";
 
 export type HypothesisResult = {
   safety: NudgeSafety;
   frame: string;
   banks: WordBank[];
+};
+
+export const HYPOTHESIZE_START: Message = {
+  role: "user",
+  content: "(The child tapped Next and is ready to build a guess.)",
 };
 
 export const FALLBACK_HYPOTHESIS: HypothesisResult = {
@@ -46,6 +52,9 @@ export function parseHypothesisReply(raw: string): HypothesisResult {
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
     const data = JSON.parse(raw.slice(start, end + 1));
+    if (data.safety === "stop") {
+      return { safety: "stop", frame: "", banks: [] };
+    }
 
     if (typeof data.frame !== "string") return FALLBACK_HYPOTHESIS;
     const frame = data.frame.trim();
