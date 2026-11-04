@@ -13,8 +13,9 @@ import { Button } from './Button';
 import { FoundItOut, StepChip } from './Chips';
 import {
   IconBookOpen, IconBug, IconCalendar, IconCamera, IconCheck, IconChevronRight, IconCompass,
-  IconFlask, IconLightbulb, IconMapPin, IconPlus, IconSprout, IconStar, IconSun, type IconProps,
+  IconFlask, IconLightbulb, IconMapPin, IconPlus, IconStar, IconSun, type IconProps,
 } from './icons';
+import { NudgeFace } from './NudgeFace';
 import { GraphPaper, SunStar, Tape } from './Paper';
 import { ReadAloudButton } from './ReadAloudButton';
 import { stepIcon } from './stepIcons';
@@ -296,7 +297,7 @@ export function FindingCard({ question, guess, found, fact, photo, onNewAdventur
 
       <View style={styles.fact}>
         <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <IconSprout size={16} color={palette.navy} />
+          <NudgeFace size={22} />
         </View>
         <View style={styles.factBody}>
           <Text variant="body">

@@ -14,7 +14,8 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
 
-import { IconCamera, IconSprout } from './icons';
+import { IconCamera } from './icons';
+import { NudgeFace } from './NudgeFace';
 import { ReadAloudButton } from './ReadAloudButton';
 import { stepIcon } from './stepIcons';
 import { Text } from './Text';
@@ -43,7 +44,7 @@ export function plainText(node: React.ReactNode): string {
 export function NudgeAvatar() {
   return (
     <View style={styles.avatar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-      <IconSprout size={20} color={palette.navy} />
+      <NudgeFace size={28} />
     </View>
   );
 }

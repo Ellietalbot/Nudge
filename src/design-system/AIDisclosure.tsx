@@ -8,7 +8,8 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
-import { IconChip, IconCompass, IconInfo, IconQuestion, IconSprout, IconUserCheck, type IconProps } from './icons';
+import { IconChip, IconCompass, IconInfo, IconQuestion, IconUserCheck, type IconProps } from './icons';
+import { NudgeFace } from './NudgeFace';
 import { ReadAloudButton } from './ReadAloudButton';
 import { Text } from './Text';
 import { focusRing, fontFamily, hairline, hitSlopFor, nudgeBubble, palette, radius, space } from './tokens';
@@ -35,7 +36,7 @@ export function AIDisclosure({ compact = false, onMore, onDone }: AIDisclosurePr
   return (
     <View style={styles.card}>
       <View style={styles.face} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <IconSprout size={44} color={palette.navy} />
+        <NudgeFace size={60} />
       </View>
       <Text variant="heading" align="center" style={styles.heading}>{HEADING}</Text>
       <View style={styles.list}>

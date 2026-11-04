@@ -7,7 +7,8 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from './Button';
 import { StepChip } from './Chips';
-import { IconCamera, IconCheck, IconSprout } from './icons';
+import { IconCamera, IconCheck } from './icons';
+import { NudgeFace } from './NudgeFace';
 import { Text } from './Text';
 import { TextField } from './TextField';
 import { hairline, palette, radius, space, step as getStep, type StepId } from './tokens';
@@ -42,7 +43,7 @@ export function PromptCard({ stepId, question, example, photo, value, onChangeTe
       <StepChip stepId={stepId} />
       <View style={styles.questionRow}>
         <View style={styles.sprout} importantForAccessibility="no-hide-descendants" accessibilityElementsHidden>
-          <IconSprout size={18} color={palette.navy} />
+          <NudgeFace size={24} />
         </View>
         <Text variant="title" style={styles.question}>{question}</Text>
       </View>

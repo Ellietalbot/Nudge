@@ -10,7 +10,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { IconAlertTriangle, IconSprout } from './icons';
+import { IconAlertTriangle } from './icons';
+import { NudgeFace } from './NudgeFace';
 import { Text } from './Text';
 import { fontFamily, nudgeBubble, palette, space, type } from './tokens';
 
@@ -82,7 +83,7 @@ export function TextField({
       {hint ? (
         <View style={styles.hint}>
           <View style={styles.sprout}>
-            <IconSprout size={18} color={palette.navy} />
+            <NudgeFace size={22} />
           </View>
           <Text variant="body" style={styles.hintText}>{hint}</Text>
         </View>
