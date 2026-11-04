@@ -90,7 +90,7 @@ export type NudgeResult = {
   readyForNext: boolean;
 };
 
-const SAFETY_LEVELS: NudgeSafety[] = [
+export const SAFETY_LEVELS: NudgeSafety[] = [
   "none",
   "caution",
   "askAdult",
