@@ -25,7 +25,7 @@ import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 
 export default function Ask() {
-  const { messages, addMessages } = useExploration();
+  const { messages, addMessages, stepStarts, startStep } = useExploration();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -34,9 +34,12 @@ export default function Ask() {
   const [attempt, setAttempt] = useState(0);
   const [text, setText] = useState("");
   const started = useRef(false);
-  const observeCount = useRef(messages.length);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
+
+  useEffect(() => {
+    startStep("ask");
+  }, []);
 
   useEffect(() => {
     const show = Keyboard.addListener("keyboardWillShow", () =>
@@ -91,7 +94,7 @@ export default function Ask() {
     setAttempt((a) => a + 1); // re-runs the effect
   }
   const askTurns = messages
-    .slice(observeCount.current)
+    .slice(stepStarts.ask ?? messages.length)
     .filter((m) => m.role === "user").length;
 
   const showNext =
@@ -111,7 +114,7 @@ export default function Ask() {
         </View>
         <ChatThread
           messages={messages}
-          dividerAfter={observeCount.current}
+          stepStarts={stepStarts}
           loading={status === "loading"}
         />
         {safety !== "none" && safety !== "stop" && (

@@ -100,9 +100,11 @@ export type HypothesisBuilderProps = {
   banks: WordBank[];
   /** Called with the full sentence when the child taps "Let's find out!". */
   onDone?: (sentence: string) => void;
+  /** Docked under a chat: hides the step pill and title (the chat's divider already shows the step). */
+  compact?: boolean;
 };
 
-export function HypothesisBuilder({ parts, banks, onDone }: HypothesisBuilderProps) {
+export function HypothesisBuilder({ parts, banks, onDone, compact = false }: HypothesisBuilderProps) {
   const blankCount = banks.length;
   const [picks, setPicks] = useState<(string | null)[]>(() => Array.from({ length: blankCount }, () => null));
   const [submitted, setSubmitted] = useState(false);
@@ -118,7 +120,7 @@ export function HypothesisBuilder({ parts, banks, onDone }: HypothesisBuilderPro
     <View style={styles.card}>
       {submitted ? (
         <PraisePill stepId="hypothesize" />
-      ) : (
+      ) : compact ? null : (
         <View style={styles.guessPill}>
           <View style={[styles.guessCircle, { backgroundColor: guess.bg }]}>
             <IconLightbulb size={18} color={guess.fg} />
@@ -127,7 +129,7 @@ export function HypothesisBuilder({ parts, banks, onDone }: HypothesisBuilderPro
         </View>
       )}
 
-      {!submitted && <Text variant="title">Finish your guess</Text>}
+      {!submitted && !compact && <Text variant="title">Finish your guess</Text>}
 
       <View style={styles.sentence} accessible={submitted} accessibilityLabel={submitted ? sentence : undefined}>
         <Text variant="title" color={guess.text}>I think</Text>

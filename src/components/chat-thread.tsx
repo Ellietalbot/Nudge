@@ -4,7 +4,9 @@ import {
     PhotoBubble,
     StepDivider,
     TypingIndicator,
+    type StepId,
 } from "@/design-system";
+import type { StepStarts } from "@/lib/exploration-context";
 import { Message } from "@/lib/nudge-api";
 import React, { useRef } from "react";
 import { Image, ScrollView } from "react-native";
@@ -39,13 +41,26 @@ function MessageBubble({ msg }: { msg: Message }) {
   );
 }
 
+// Observe has no divider: it's where the chat begins.
+const DIVIDER_STEPS: StepId[] = ["ask", "hypothesize", "investigate", "reflect"];
+
+function Dividers({ stepStarts, at }: { stepStarts: StepStarts; at: number }) {
+  return (
+    <>
+      {DIVIDER_STEPS.filter((id) => stepStarts[id] === at).map((id) => (
+        <StepDivider key={id} stepId={id} />
+      ))}
+    </>
+  );
+}
+
 export function ChatThread({
   messages,
-  dividerAfter,
+  stepStarts,
   loading,
 }: {
   messages: Message[];
-  dividerAfter: number;
+  stepStarts: StepStarts;
   loading: boolean;
 }) {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
@@ -63,10 +78,13 @@ export function ChatThread({
     >
       {messages.map((msg, i) => (
         <React.Fragment key={i}>
+          <Dividers stepStarts={stepStarts} at={i} />
           <MessageBubble msg={msg} />
-          {i === dividerAfter - 1 && <StepDivider stepId="ask" />}
         </React.Fragment>
       ))}
+      {/* A step that has started but has no messages yet, e.g. Hypothesize
+          while the child is still building their guess. */}
+      <Dividers stepStarts={stepStarts} at={messages.length} />
       {loading && <TypingIndicator />}
     </ScrollView>
   );

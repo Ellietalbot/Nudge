@@ -42,9 +42,6 @@ export async function askNudge(
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
-  // Did the server answer at all? Decides offline vs. server below. We check
-  // *when* it failed rather than the error's type, because the error type
-  // depends on which fetch is running (Expo's throws FetchError, not TypeError).
   let gotResponse = false;
 
   try {
@@ -67,9 +64,8 @@ export async function askNudge(
     return data.text;
   } catch (err) {
     if (err instanceof NudgeError) {
-      throw err; // already labelled, pass it through
+      throw err;
     } else if (controller.signal.aborted) {
-      // Checked before offline: an aborted request has no response either.
       throw new NudgeError("timeout", "Request timed out.");
     } else if (!gotResponse) {
       throw new NudgeError("offline", (err as Error)?.message);
