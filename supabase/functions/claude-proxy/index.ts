@@ -8,7 +8,7 @@ import { withSupabase } from "@supabase/server";
 // The model is chosen HERE, on the server, so the app can't switch to a
 // pricier one. To change models later, edit this one line and redeploy.
 const MODEL = "claude-haiku-5-5";
-const MAX_TOKENS = 1024; // upper limit on reply length (keeps costs predictable)
+const MAX_TOKENS = 4096; // upper limit on reply length incl. thinking (keeps costs predictable)
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
 
@@ -70,6 +70,12 @@ export default {
         { error: data?.error?.message ?? "Claude API error" },
         { status: res.status },
       );
+    }
+
+    // The model ran out of room (thinking counts too), so the reply is cut off.
+    // The app's parser falls back safely; this makes it visible in the logs.
+    if (data.stop_reason === "max_tokens") {
+      console.error("Reply cut off at MAX_TOKENS", data.usage);
     }
 
     // Return just the text, which is all the app needs.

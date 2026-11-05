@@ -1,4 +1,5 @@
 export { ASK_PROMPT } from "./ask";
+export { INVESTIGATE_PROMPT } from "./investigate";
 export { HYPOTHESIZE_PROMPT } from "./hypothesize";
 export { OBSERVE_PHOTO_GUARDRAILS, OBSERVE_PROMPT } from "./observe";
 export {
