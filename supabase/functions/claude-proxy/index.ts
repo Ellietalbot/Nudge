@@ -79,11 +79,25 @@ export default {
     }
 
     // Return just the text, which is all the app needs.
-    const text = (data.content ?? [])
-      .filter((b: { type: string }) => b.type === "text")
-      .map((b: { text: string }) => b.text)
-      .join("");
-    return Response.json({ text, model: data.model, usage: data.usage });
+    const textBlocks = (data.content ?? []).filter(
+      (b: { type: string }) => b.type === "text",
+    );
+    // Checking a bug: words sometimes arrive joined ("meltsfaster"). If a reply
+    // comes in several text pieces, log how they start and end.
+    if (textBlocks.length > 1) {
+      console.log(
+        "Reply in several text pieces:",
+        (data.content ?? []).map((b: { type: string }) => b.type),
+        textBlocks.map((b: { text: string }) => JSON.stringify(b.text.slice(-15))),
+      );
+    }
+    const text = textBlocks.map((b: { text: string }) => b.text).join("");
+    return Response.json({
+      text,
+      textPieces: textBlocks.length,
+      model: data.model,
+      usage: data.usage,
+    });
   }),
 };
 

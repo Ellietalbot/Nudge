@@ -109,7 +109,14 @@ export function saferOf(a: NudgeSafety, b: NudgeSafety): NudgeSafety {
 const FALLBACK_REPLY =
   "Let's look closely without touching! What do you notice?";
 
-export function parseNudgeReply(raw: string): NudgeResult {
+// Reflect's fallback: the Observe one ("What do you notice?") makes no sense mid-Reflect.
+export const REFLECT_FALLBACK_REPLY =
+  "Oops, I got a little mixed up! Can you tell me that again?";
+
+export function parseNudgeReply(
+  raw: string,
+  fallbackReply: string = FALLBACK_REPLY,
+): NudgeResult {
   try {
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
@@ -122,7 +129,7 @@ export function parseNudgeReply(raw: string): NudgeResult {
     const reply =
       typeof data.reply === "string" && data.reply.trim()
         ? data.reply
-        : FALLBACK_REPLY;
+        : fallbackReply;
 
     return {
       ...(data.object != null ? { object: String(data.object) } : {}),
@@ -133,7 +140,7 @@ export function parseNudgeReply(raw: string): NudgeResult {
   } catch {
     return {
       safety: "doNotTouch",
-      reply: FALLBACK_REPLY,
+      reply: fallbackReply,
       readyForNext: false,
     };
   }
