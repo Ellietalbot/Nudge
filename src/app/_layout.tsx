@@ -2,6 +2,7 @@ import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import AppTabs from "@/components/app-tabs";
 import SetupScreen from "@/components/setup-screen";
 import { initDb } from "@/db/init";
+import { ChildNameContext } from "@/lib/child-name";
 import { DarkTheme, DefaultTheme, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SQLiteProvider } from "expo-sqlite";
@@ -16,10 +17,13 @@ export default function TabLayout() {
 
   return (
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-      <SQLiteProvider databaseName="nudge.db" onInit={initDb}>
-        <AnimatedSplashOverlay />
-        <AppTabs />
-      </SQLiteProvider>
+      {/* Context updates reach screens even through SQLiteProvider's memo. */}
+      <ChildNameContext.Provider value={name}>
+        <SQLiteProvider databaseName="nudge.db" onInit={initDb}>
+          <AnimatedSplashOverlay />
+          <AppTabs />
+        </SQLiteProvider>
+      </ChildNameContext.Provider>
       {/* Outside SQLiteProvider on purpose: its memo ignores children changes,
           so anything inside it wouldn't update when `name` changes. */}
       {!name && (

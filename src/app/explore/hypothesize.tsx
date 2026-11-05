@@ -21,6 +21,7 @@ import { HYPOTHESIZE_PROMPT } from "@/lib/prompts";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Hypothesize() {
   const { messages, addMessages, trimTo, stepStarts, startStep } =
@@ -31,6 +32,7 @@ export default function Hypothesize() {
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
   const [result, setResult] = useState<HypothesisResult | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const insets = useSafeAreaInsets();
 
   // Messages before this step. Anything after it is an earlier guess,
   // if the child came back to change it.
@@ -126,7 +128,8 @@ export default function Hypothesize() {
           stepStarts={stepStarts}
           loading={status === "loading"}
         />
-        <View style={{ marginBottom: 90 }}>{dock}</View>
+        {dock}
+        <View style={{ height: insets.bottom }} />
       </View>
     </Screen>
   );

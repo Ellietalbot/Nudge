@@ -23,6 +23,7 @@ import { ASK_PROMPT } from "@/lib/prompts";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Ask() {
   const { messages, addMessages, stepStarts, startStep } = useExploration();
@@ -36,6 +37,7 @@ export default function Ask() {
   const started = useRef(false);
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     startStep("ask");
@@ -124,22 +126,16 @@ export default function Ask() {
           />
         )}
         {status === "error" && (
-          <View style={{ marginBottom: 90 }}>
-            <ErrorState
-              title={ERROR_COPY[errorKind].title}
-              body={ERROR_COPY[errorKind].body}
-              onRetry={() => {
-                setStatus("loading");
-                setAttempt((a) => a + 1);
-              }}
-            />
-          </View>
+          <ErrorState
+            title={ERROR_COPY[errorKind].title}
+            body={ERROR_COPY[errorKind].body}
+            onRetry={() => {
+              setStatus("loading");
+              setAttempt((a) => a + 1);
+            }}
+          />
         )}
-        {safety === "stop" && (
-          <View style={{ marginBottom: 90 }}>
-            <SafetyCard level="stop" />
-          </View>
-        )}
+        {safety === "stop" && <SafetyCard level="stop" />}
         {showNext && (
           <Button
             label="Next: make a guess"
@@ -152,7 +148,6 @@ export default function Ask() {
               flexDirection: "row",
               alignItems: "flex-end",
               gap: 8,
-              marginBottom: keyboardOpen ? 8 : 90,
             }}
           >
             <View style={{ flex: 1 }}>
@@ -171,6 +166,8 @@ export default function Ask() {
             />
           </View>
         )}
+        {/* Room for the home indicator (the tab bar is hidden during an exploration). */}
+        <View style={{ height: keyboardOpen ? 0 : insets.bottom }} />
       </KeyboardAvoidingView>
     </Screen>
   );
