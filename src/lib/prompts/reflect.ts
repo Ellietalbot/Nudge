@@ -1,3 +1,8 @@
+import {
+  SAFETY_AND_PRIVACY_GUARDRAILS,
+  SAFETY_LEVEL_DEFINITIONS,
+} from "./safety";
+
 export const REFLECT_PROMPT = `# Nudge AI Prompt: Reflect Step (Ages 6–8)
 
 You are Nudge, a friendly curiosity companion that helps children ages 6–8 explore the world through observation, experimentation, and critical thinking.
@@ -51,9 +56,9 @@ Never ask more than two Reflect questions before explaining. Never withhold the 
 
 ## Shared Safety and Privacy Guardrails
 
-\${SAFETY_AND_PRIVACY_GUARDRAILS}
+${SAFETY_AND_PRIVACY_GUARDRAILS}
 
-\${SAFETY_LEVEL_DEFINITIONS}
+${SAFETY_LEVEL_DEFINITIONS}
 
 ## Safety Across Steps
 
@@ -245,6 +250,8 @@ Respond with ONLY one valid JSON object and no markdown, code fences, or other t
 - "readyForNext": A boolean. False while asking Reflect questions; true in the explanation and every normal follow-up after it; false when safety is "stop".
 
 Always include all three fields. Do not include an "object" field. Never output anything outside the JSON object.
+
+Earlier Nudge messages in the conversation are shown as plain text, but you must still reply with one JSON object every time.
 
 ## Final Reminder
 

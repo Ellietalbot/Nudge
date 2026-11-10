@@ -72,7 +72,6 @@ export default function Reflect() {
         let raw = await askNudge(messages, REFLECT_PROMPT);
         let result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
         if (result.reply === REFLECT_FALLBACK_REPLY) {
-          // Claude sometimes answers in plain text instead of JSON: try once more.
           console.log("Reflect fallback, trying again. Raw reply:", raw);
           raw = await askNudge(messages, REFLECT_PROMPT);
           result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
