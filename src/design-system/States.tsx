@@ -1,81 +1,101 @@
-/**
- * Screen states: empty, error and loading.
- *
- *   EmptyState    nothing here yet. Friendly, dashed paper box, one clear next step.
- *   ThinkingState Nudge is working on a reply: the thinking robot and one short line.
- *   ErrorState    the app hiccuped. Same calm sand "problem" look as ProblemToast.
- *                 Never the child's fault, and their work is always safe.
- *                 Shows the robot holding a spanner: Nudge is fixing it, not the child.
- *                 Default copy:
- *                   title: "Your journal didn't load"
- *                   body:  "Nudge couldn't reach the internet. Your discoveries are safe."
- *   Skeleton      a soft shimmering placeholder while things load (still if Reduce Motion is on).
- *   SkeletonCard  a placeholder shaped like a journal card.
- */
-import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet, View, type DimensionValue } from 'react-native';
+import React, { useEffect, useRef } from "react";
+import { Animated, StyleSheet, View, type DimensionValue } from "react-native";
 
-import { Button } from './Button';
-import { Illustration } from './Illustration';
-import { Text } from './Text';
-import { useReduceMotion } from './useReduceMotion';
-import { palette, radius, space, status } from './tokens';
+import { Button } from "./Button";
+import { Illustration } from "./Illustration";
+import { Text } from "./Text";
+import { palette, radius, space, status } from "./tokens";
+import { useReduceMotion } from "./useReduceMotion";
 
-const dashedEdge = 'rgba(0, 54, 98, 0.18)';
-
-// ── Empty state ───────────────────────────────────────────────────────────────
+const dashedEdge = "rgba(0, 54, 98, 0.18)";
 
 export type EmptyStateProps = {
   title: string;
   body: string;
-  /** Illustration or icon tile shown above the title. */
   illustration?: React.ReactNode;
-  /** One primary next step. */
   action?: { label: string; onPress: () => void };
 };
 
-export function EmptyState({ title, body, illustration, action }: EmptyStateProps) {
+export function EmptyState({
+  title,
+  body,
+  illustration,
+  action,
+}: EmptyStateProps) {
   return (
     <View style={[styles.box, styles.empty]}>
-      {illustration ? <View style={styles.illustration}>{illustration}</View> : null}
-      <Text variant="title" align="center" style={styles.title}>{title}</Text>
-      <Text variant="reading" color={palette.navyMuted} align="center" style={styles.body}>{body}</Text>
-      {action && <Button label={action.label} onPress={action.onPress} variant="primary" />}
+      {illustration ? (
+        <View style={styles.illustration}>{illustration}</View>
+      ) : null}
+      <Text variant="title" align="center" style={styles.title}>
+        {title}
+      </Text>
+      <Text
+        variant="reading"
+        color={palette.navyMuted}
+        align="center"
+        style={styles.body}
+      >
+        {body}
+      </Text>
+      {action && (
+        <Button
+          label={action.label}
+          onPress={action.onPress}
+          variant="primary"
+        />
+      )}
     </View>
   );
 }
 
-// ── Error state ───────────────────────────────────────────────────────────────
-
 export type ErrorStateProps = {
-  /** e.g. "Your journal didn't load" */
   title: string;
-  /** e.g. "Nudge couldn't reach the internet. Your discoveries are safe." */
   body: string;
+  retryLabel?: string;
   onRetry?: () => void;
 };
 
-export function ErrorState({ title, body, onRetry }: ErrorStateProps) {
+export function ErrorState({
+  title,
+  body,
+  retryLabel = "Try again",
+  onRetry,
+}: ErrorStateProps) {
   return (
-    <View accessibilityRole="alert" accessibilityLiveRegion="polite" style={[styles.box, styles.error]}>
+    <View
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
+      style={[styles.box, styles.error]}
+    >
       <View style={styles.illustration}>
         <Illustration name="robotHolding" size={112} />
       </View>
-      <Text variant="title" align="center" style={styles.title}>{title}</Text>
-      <Text variant="reading" color={palette.navyMuted} align="center" style={styles.body}>{body}</Text>
-      {onRetry && <Button label="Try again" onPress={onRetry} variant="primary" />}
+      <Text variant="title" align="center" style={styles.title}>
+        {title}
+      </Text>
+      <Text
+        variant="reading"
+        color={palette.navyMuted}
+        align="center"
+        style={styles.body}
+      >
+        {body}
+      </Text>
+      {onRetry && (
+        <Button label={retryLabel} onPress={onRetry} variant="primary" />
+      )}
     </View>
   );
 }
 
-// ── Thinking state ────────────────────────────────────────────────────────────
-
 export type ThinkingStateProps = {
-  /** e.g. "Nudge is taking a look…" */
   title?: string;
 };
 
-export function ThinkingState({ title = 'Nudge is thinking…' }: ThinkingStateProps) {
+export function ThinkingState({
+  title = "Nudge is thinking…",
+}: ThinkingStateProps) {
   return (
     <View
       accessible
@@ -87,13 +107,12 @@ export function ThinkingState({ title = 'Nudge is thinking…' }: ThinkingStateP
       <View style={styles.illustration}>
         <Illustration name="robotThinking" size={120} />
       </View>
-      <Text variant="title" align="center">{title}</Text>
+      <Text variant="title" align="center">
+        {title}
+      </Text>
     </View>
   );
 }
-
-// ── Skeleton ──────────────────────────────────────────────────────────────────
-
 
 export type SkeletonProps = {
   width?: DimensionValue;
@@ -101,7 +120,11 @@ export type SkeletonProps = {
   radius?: number;
 };
 
-export function Skeleton({ width = '100%', height = 16, radius: r = radius.md }: SkeletonProps) {
+export function Skeleton({
+  width = "100%",
+  height = 16,
+  radius: r = radius.md,
+}: SkeletonProps) {
   const reduceMotion = useReduceMotion();
   const opacity = useRef(new Animated.Value(1)).current;
 
@@ -112,8 +135,16 @@ export function Skeleton({ width = '100%', height = 16, radius: r = radius.md }:
     }
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(opacity, { toValue: 0.5, duration: 700, useNativeDriver: true }),
-        Animated.timing(opacity, { toValue: 1, duration: 700, useNativeDriver: true }),
+        Animated.timing(opacity, {
+          toValue: 0.5,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
       ]),
     );
     loop.start();
@@ -124,14 +155,25 @@ export function Skeleton({ width = '100%', height = 16, radius: r = radius.md }:
     <Animated.View
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden
-      style={{ width, height, borderRadius: r, backgroundColor: palette.sand, opacity }}
+      style={{
+        width,
+        height,
+        borderRadius: r,
+        backgroundColor: palette.sand,
+        opacity,
+      }}
     />
   );
 }
 
 export function SkeletonCard() {
   return (
-    <View accessible accessibilityLabel="Loading" accessibilityState={{ busy: true }} style={styles.skeletonCard}>
+    <View
+      accessible
+      accessibilityLabel="Loading"
+      accessibilityState={{ busy: true }}
+      style={styles.skeletonCard}
+    >
       <View style={styles.skeletonRow}>
         <Skeleton width={40} height={40} radius={12} />
         <View style={styles.skeletonLines}>
@@ -147,15 +189,25 @@ export function SkeletonCard() {
 
 const styles = StyleSheet.create({
   box: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: space[12],
     paddingHorizontal: space[6],
     borderRadius: radius.xxl,
     borderWidth: 2,
   },
-  empty: { backgroundColor: palette.paper, borderStyle: 'dashed', borderColor: dashedEdge },
-  error: { backgroundColor: status.problem.bg, borderColor: status.problem.edge },
-  thinking: { backgroundColor: palette.paper, borderColor: 'rgba(0, 54, 98, 0.08)' },
+  empty: {
+    backgroundColor: palette.paper,
+    borderStyle: "dashed",
+    borderColor: dashedEdge,
+  },
+  error: {
+    backgroundColor: status.problem.bg,
+    borderColor: status.problem.edge,
+  },
+  thinking: {
+    backgroundColor: palette.paper,
+    borderColor: "rgba(0, 54, 98, 0.08)",
+  },
   illustration: { marginBottom: space[5] },
   title: { marginBottom: space[2] },
   body: { maxWidth: 320, marginBottom: space[6] },
@@ -165,8 +217,8 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl,
     backgroundColor: palette.paper,
     borderWidth: 1.5,
-    borderColor: 'rgba(0, 54, 98, 0.08)',
+    borderColor: "rgba(0, 54, 98, 0.08)",
   },
-  skeletonRow: { flexDirection: 'row', alignItems: 'center', gap: space[3] },
+  skeletonRow: { flexDirection: "row", alignItems: "center", gap: space[3] },
   skeletonLines: { flex: 1, gap: space[2] },
 });

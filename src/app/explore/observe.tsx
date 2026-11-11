@@ -9,13 +9,12 @@ import {
   Text,
   ThinkingState,
 } from "@/design-system";
-import { ERROR_COPY } from "@/lib/error-copy";
+import { AppErrorKind, ERROR_COPY } from "@/lib/error-copy";
 import { useExploration } from "@/lib/exploration-context";
 import {
   askNudge,
   Message,
   NudgeError,
-  NudgeErrorKind,
   NudgeSafety,
   parseNudgeReply,
 } from "@/lib/nudge-api";
@@ -40,15 +39,25 @@ export default function Observe() {
     photoUri ? "loading" : "idle",
   );
   const { addMessages, reset } = useExploration();
-  const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
+  const [errorKind, setErrorKind] = useState<AppErrorKind>("server");
 
   useEffect(() => {
     if (!photoUri) return;
     let cancelled = false;
 
     async function lookAtPhoto(uri: string) {
+      let base64Photo: string;
       try {
-        const base64Photo = await preparePhoto(uri);
+        base64Photo = await preparePhoto(uri);
+      } catch (error) {
+        console.error(error);
+        if (!cancelled) {
+          setErrorKind("photo");
+          setStatus("error");
+        }
+        return;
+      }
+      try {
         const firstMessage: Message = {
           role: "user",
           content: [
@@ -118,14 +127,20 @@ export default function Observe() {
   if (status === "loading") {
     card = <ThinkingState title="Nudge is taking a look…" />;
   } else if (status === "error") {
+    const isPhotoError = errorKind === "photo";
     card = (
       <ErrorState
         onRetry={() => {
+          if (isPhotoError) {
+            router.replace("/explore/camera");
+            return;
+          }
           setStatus("loading");
           setAttempt((a) => a + 1);
         }}
         title={ERROR_COPY[errorKind].title}
         body={ERROR_COPY[errorKind].body}
+        retryLabel={ERROR_COPY[errorKind].retryLabel}
       />
     );
   } else if (safety === "stop") {

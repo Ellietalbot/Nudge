@@ -1,8 +1,9 @@
 import { NudgeErrorKind } from "./nudge-api";
 
+export type AppErrorKind = NudgeErrorKind | "photo";
 export const ERROR_COPY: Record<
-  NudgeErrorKind,
-  { title: string; body: string }
+  AppErrorKind,
+  { title: string; body: string; retryLabel?: string }
 > = {
   offline: {
     title: "Nudge can’t reach the internet",
@@ -15,5 +16,10 @@ export const ERROR_COPY: Record<
   server: {
     title: "Nudge got stuck",
     body: "It’s not you, it’s Nudge! Try again in a minute.",
+  },
+  photo: {
+    title: "Oops, Nudge couldn’t open that photo",
+    body: "Let’s take a new one!”",
+    retryLabel: "Take a new photo",
   },
 };

@@ -16,7 +16,7 @@ export async function preparePhoto(uri: string): Promise<string> {
     format: SaveFormat.JPEG,
     base64: true,
   });
-    // 5. base64 is optional in the result — if it's missing, throw; otherwise return it
+  // 5. base64 is optional in the result — if it's missing, throw; otherwise return it
   if (!result.base64) {
     throw new Error("Failed to get base64 from the photo");
   }
