@@ -183,7 +183,7 @@ export default function Observe() {
         <BackLink onPress={() => router.back()} />
         <StepProgress current={0} />
       </View>
-      {photoUri && safety !== "stop" && (
+      {photoUri && safety !== "stop" && errorKind !== "photo" && (
         <Image
           source={{ uri: photoUri }}
           style={{ height: 240, borderRadius: 24 }}
