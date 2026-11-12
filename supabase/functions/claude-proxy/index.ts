@@ -25,8 +25,9 @@ export default {
       );
     }
 
-    // Expected body: { system?: string, messages: [{ role, content }, ...] }
-    let body: { system?: string; messages?: unknown[] };
+    // Expected body: { system?: string, messages: [{ role, content }, ...], schema?: {...} }
+    // schema (optional): a JSON Schema the reply must follow (structured outputs).
+    let body: { system?: string; messages?: unknown[]; schema?: object };
     try {
       body = await req.json();
     } catch {
@@ -55,6 +56,13 @@ export default {
           model: MODEL,
           max_tokens: MAX_TOKENS,
           ...(body.system ? { system: body.system } : {}),
+          ...(body.schema
+            ? {
+                output_config: {
+                  format: { type: "json_schema", schema: body.schema },
+                },
+              }
+            : {}),
           messages: body.messages,
         }),
       });

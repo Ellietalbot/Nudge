@@ -26,6 +26,7 @@ export class NudgeError extends Error {
 export async function askNudge(
   messages: Message[],
   system?: string,
+  schema?: object,
 ): Promise<string> {
   const url = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/claude-proxy`;
   const apiKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -51,7 +52,7 @@ export async function askNudge(
         apikey: `${apiKey}`,
         "content-type": "application/json",
       },
-      body: JSON.stringify({ messages, system }),
+      body: JSON.stringify({ messages, system, schema }),
       signal: controller.signal,
     });
     gotResponse = true;
