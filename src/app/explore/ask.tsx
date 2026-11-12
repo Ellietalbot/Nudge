@@ -20,6 +20,7 @@ import {
   saferOf,
 } from "@/lib/nudge-api";
 import { ASK_PROMPT } from "@/lib/prompts";
+import { ASK_SCHEMA } from "@/lib/schemas";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
@@ -68,7 +69,7 @@ export default function Ask() {
 
     async function getNudgeReply() {
       try {
-        const raw = await askNudge(messages, ASK_PROMPT);
+        const raw = await askNudge(messages, ASK_PROMPT, ASK_SCHEMA);
         const result = parseNudgeReply(raw);
         console.log("Nudge says (Ask):", result);
         addMessages({ role: "assistant", content: result.reply });
