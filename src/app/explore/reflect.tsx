@@ -21,6 +21,7 @@ import {
   saferOf,
 } from "@/lib/nudge-api";
 import { REFLECT_PROMPT } from "@/lib/prompts";
+import { REFLECT_SCHEMA } from "@/lib/schemas";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
@@ -69,11 +70,11 @@ export default function Reflect() {
 
     async function getNudgeReply() {
       try {
-        let raw = await askNudge(messages, REFLECT_PROMPT);
+        let raw = await askNudge(messages, REFLECT_PROMPT, REFLECT_SCHEMA);
         let result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
         if (result.reply === REFLECT_FALLBACK_REPLY) {
           console.log("Reflect fallback, trying again. Raw reply:", raw);
-          raw = await askNudge(messages, REFLECT_PROMPT);
+          raw = await askNudge(messages, REFLECT_PROMPT, REFLECT_SCHEMA);
           result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
         }
         console.log("Nudge says (Reflect):", result);

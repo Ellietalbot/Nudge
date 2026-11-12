@@ -20,10 +20,10 @@ import {
 } from "@/lib/nudge-api";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
+import { OBSERVE_SCHEMA } from "@/lib/schemas";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, View } from "react-native";
-
 // Photos Nudge can't explore: show the reply and a retake button instead of the text box.
 const RETAKE_OBJECTS = ["unclear", "person", "private"];
 
@@ -72,7 +72,11 @@ export default function Observe() {
             { type: "text", text: "Look what I found!" },
           ],
         };
-        const raw = await askNudge([firstMessage], OBSERVE_PROMPT);
+        const raw = await askNudge(
+          [firstMessage],
+          OBSERVE_PROMPT,
+          OBSERVE_SCHEMA,
+        );
         const result = parseNudgeReply(raw);
 
         console.log("Nudge says:", result);
