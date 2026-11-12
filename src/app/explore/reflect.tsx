@@ -70,13 +70,9 @@ export default function Reflect() {
 
     async function getNudgeReply() {
       try {
-        let raw = await askNudge(messages, REFLECT_PROMPT, REFLECT_SCHEMA);
-        let result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
-        if (result.reply === REFLECT_FALLBACK_REPLY) {
-          console.log("Reflect fallback, trying again. Raw reply:", raw);
-          raw = await askNudge(messages, REFLECT_PROMPT, REFLECT_SCHEMA);
-          result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
-        }
+        const raw = await askNudge(messages, REFLECT_PROMPT, REFLECT_SCHEMA);
+        const result = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
+
         console.log("Nudge says (Reflect):", result);
         addMessages({ role: "assistant", content: result.reply });
         setSafety((prev) => saferOf(prev, result.safety));
