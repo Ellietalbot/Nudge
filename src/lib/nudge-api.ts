@@ -122,11 +122,11 @@ export function parseNudgeReply(
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
     const data = JSON.parse(raw.slice(start, end + 1));
-
-    const safety = SAFETY_LEVELS.includes(data.safety)
-      ? data.safety
-      : "doNotTouch";
-
+    const safetyText =
+      typeof data.safety === "string" ? data.safety.toLowerCase() : "";
+    const safety =
+      SAFETY_LEVELS.find((level) => level.toLowerCase() === safetyText) ??
+      "doNotTouch";
     const reply =
       typeof data.reply === "string" && data.reply.trim()
         ? data.reply
