@@ -1,5 +1,5 @@
 import type { Material } from "@/design-system";
-import { SAFETY_LEVELS, type NudgeSafety } from "./nudge-api";
+import { toSafety, type NudgeSafety } from "./nudge-api";
 
 export type InvestigationResult = {
   safety: NudgeSafety;
@@ -50,8 +50,9 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
     const data = JSON.parse(raw.slice(start, end + 1));
+    const safety = toSafety(data.safety);
 
-    if (data.safety === "stop") {
+    if (safety === "stop") {
       return {
         ...FALLBACK_INVESTIGATION,
         safety: "stop",
@@ -102,10 +103,6 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
         ): s is { instruction: string; tip?: string } => s !== null,
       );
     if (steps.length !== data.steps.length) return FALLBACK_INVESTIGATION;
-
-    const safety: NudgeSafety = SAFETY_LEVELS.includes(data.safety)
-      ? data.safety
-      : "doNotTouch";
 
     return { safety, question, minutes, materials, steps };
   } catch {

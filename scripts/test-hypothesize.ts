@@ -5,6 +5,7 @@ import {
 } from "../src/lib/hypothesize";
 import { askNudge, Message } from "../src/lib/nudge-api";
 import { HYPOTHESIZE_PROMPT } from "../src/lib/prompts/hypothesize";
+import { HYPOTHESIZE_SCHEMA } from "../src/lib/schemas";
 
 // Each test is the conversation as it stands when the child taps Next on Ask.
 const tests: { name: string; expect: string; messages: Message[] }[] = [
@@ -173,6 +174,7 @@ async function main() {
     const raw = await askNudge(
       [...t.messages, HYPOTHESIZE_START],
       HYPOTHESIZE_PROMPT,
+      HYPOTHESIZE_SCHEMA,
     );
     const result = parseHypothesisReply(raw);
     const usedFallback =

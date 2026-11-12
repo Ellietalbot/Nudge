@@ -4,6 +4,7 @@ import {
 } from "../src/lib/investigate";
 import { askNudge, Message } from "../src/lib/nudge-api";
 import { INVESTIGATE_PROMPT } from "../src/lib/prompts/investigate";
+import { INVESTIGATE_SCHEMA } from "../src/lib/schemas";
 
 // Builds the conversation as it stands when the child taps "Let's find out!"
 // on Hypothesize: Observe, Ask, then their guess as the last message.
@@ -93,7 +94,7 @@ async function main() {
   for (const t of tests) {
     if (only && !t.name.includes(only)) continue;
 
-    const raw = await askNudge(t.messages, INVESTIGATE_PROMPT);
+    const raw = await askNudge(t.messages, INVESTIGATE_PROMPT, INVESTIGATE_SCHEMA);
     const r = parseInvestigationReply(raw);
     const usedFallback =
       r.safety !== "stop" && r.question === FALLBACK_INVESTIGATION.question;

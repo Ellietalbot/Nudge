@@ -18,6 +18,7 @@ import {
 } from "@/lib/hypothesize";
 import { askNudge, NudgeError, NudgeErrorKind } from "@/lib/nudge-api";
 import { HYPOTHESIZE_PROMPT } from "@/lib/prompts";
+import { HYPOTHESIZE_SCHEMA } from "@/lib/schemas";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -50,6 +51,7 @@ export default function Hypothesize() {
         const raw = await askNudge(
           [...messages.slice(0, start), HYPOTHESIZE_START],
           HYPOTHESIZE_PROMPT,
+          HYPOTHESIZE_SCHEMA,
         );
         const parsed = parseHypothesisReply(raw);
         console.log("Nudge says (Hypothesize):", parsed);

@@ -5,6 +5,7 @@ import {
   REFLECT_FALLBACK_REPLY,
 } from "../src/lib/nudge-api";
 import { REFLECT_PROMPT } from "../src/lib/prompts/reflect";
+import { REFLECT_SCHEMA } from "../src/lib/schemas";
 
 // Everything up to the start of Reflect, as the app builds it:
 // Observe, Ask, the guess, Investigate's plan, then "I did it!".
@@ -123,7 +124,7 @@ async function main() {
   for (const t of tests) {
     if (only && !t.name.includes(only)) continue;
 
-    const raw = await askNudge(t.messages, REFLECT_PROMPT);
+    const raw = await askNudge(t.messages, REFLECT_PROMPT, REFLECT_SCHEMA);
     const r = parseNudgeReply(raw, REFLECT_FALLBACK_REPLY);
     const sentences = r.reply.split(/[.!?]+\s/).filter(Boolean).length;
 

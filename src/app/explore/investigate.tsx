@@ -16,6 +16,7 @@ import {
 } from "@/lib/investigate";
 import { askNudge, NudgeError, NudgeErrorKind } from "@/lib/nudge-api";
 import { INVESTIGATE_PROMPT } from "@/lib/prompts";
+import { INVESTIGATE_SCHEMA } from "@/lib/schemas";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View } from "react-native";
@@ -50,6 +51,7 @@ export default function Investigate() {
         const raw = await askNudge(
           messages.slice(0, start),
           INVESTIGATE_PROMPT,
+          INVESTIGATE_SCHEMA,
         );
         const parsed = parseInvestigationReply(raw);
         console.log("Nudge says (Investigate):", parsed);

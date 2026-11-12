@@ -103,6 +103,16 @@ export const SAFETY_LEVELS: NudgeSafety[] = [
   "stop",
 ];
 
+// Turns whatever Claude sent as "safety" into one of our five levels.
+// Structured outputs may change an enum's capitalization ("askadult"), so match
+// case-insensitively and return our own spelling. Anything else → "doNotTouch".
+export function toSafety(value: unknown): NudgeSafety {
+  const text = typeof value === "string" ? value.toLowerCase() : "";
+  return (
+    SAFETY_LEVELS.find((level) => level.toLowerCase() === text) ?? "doNotTouch"
+  );
+}
+
 export function saferOf(a: NudgeSafety, b: NudgeSafety): NudgeSafety {
   return SAFETY_LEVELS.indexOf(a) >= SAFETY_LEVELS.indexOf(b) ? a : b;
 }
@@ -122,11 +132,7 @@ export function parseNudgeReply(
     const start = raw.indexOf("{");
     const end = raw.lastIndexOf("}");
     const data = JSON.parse(raw.slice(start, end + 1));
-    const safetyText =
-      typeof data.safety === "string" ? data.safety.toLowerCase() : "";
-    const safety =
-      SAFETY_LEVELS.find((level) => level.toLowerCase() === safetyText) ??
-      "doNotTouch";
+    const safety = toSafety(data.safety);
     const reply =
       typeof data.reply === "string" && data.reply.trim()
         ? data.reply
