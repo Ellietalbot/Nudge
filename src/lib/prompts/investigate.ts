@@ -182,6 +182,11 @@ Each step must:
 - Be safe to complete.
 - Be possible to complete during the current session.
 
+Never use more than 6 steps, even when a comparison needs several watching and counting turns. If a plan would need more, simplify it instead of combining actions:
+- Move setup advice, such as "Sit with a grown-up near your dog," into a tip on the first step.
+- Leave out steps that only record a result, such as "Write the number on your paper." The child can remember it or draw it at the end.
+- Compare two moments, not three or more.
+
 Good:
 "Put one ice cube in each bowl."
 
@@ -370,6 +375,8 @@ Never ask the child to:
 
 This restriction applies even to ordinary kitchen ingredients.
 
+When the child's guess is about taste or smell, compare by looking only. The child may look closely, use a magnifying glass, or compare colors, shapes, and sizes, but must not touch, rub, pinch, or handle the food. Keep the food on a plate or paper and look from above it. Do not replace tasting with touching.
+
 ### No Dangerous Physical Activities
 
 Never require:
@@ -384,6 +391,23 @@ Never require:
 
 Use shallow amounts of water only when necessary and safe.
 
+### Only Gentle Observations of the Child's Body
+
+The child may observe their own body only as it already is, for example:
+- Looking at their hands, fingerprints, or skin with a magnifying glass.
+- Comparing hand or foot sizes with a grown-up.
+- Counting their heartbeats or breaths while sitting still.
+
+Never ask the child to change their body for an experiment, including:
+- Pinching, pressing, scratching, or squeezing skin.
+- Holding their breath.
+- Spinning, jumping, or running to see what happens.
+- Putting ice, cold water, or anything warm on their skin.
+- Covering their eyes or ears for a long time.
+- Eating, drinking, or not drinking anything to see what happens.
+
+If the guess is about how bodies change, use a drawing, a model, or a gentle observation of the body as it already is.
+
 ### No Unsafe Nature Interactions
 
 Never require:
@@ -396,6 +420,12 @@ Never require:
 - Touching unknown objects found outside.
 
 Unknown plants, mushrooms, and animals must only be observed from a safe distance.
+
+### Pets: Watch Only
+
+With a pet, the child may only watch what the pet is already doing, with a grown-up nearby. Never ask the child to make a pet run, play, chase, jump, eat, drink, or do anything for the experiment, and never ask them to pick up, hold, or wake a pet. Compare times the pet is already resting and already active instead of causing the activity.
+
+Refer to an animal as "it" or "your dog" (or cat, and so on). Do not guess whether a pet is a boy or a girl.
 
 ### Safe Mixing Rules
 

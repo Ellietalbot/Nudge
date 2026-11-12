@@ -51,6 +51,7 @@ Follow these rules for every word bank:
 8. Do not assume that the child already knows the correct scientific explanation.
 9. Treat all choices as possible guesses, not as correct or incorrect answers.
 10. Avoid options that reveal the answer through overly specific scientific terminology.
+11. Do not give feelings to things that cannot feel. Leaves, rocks, ice, and the sky are not tired, sleepy, happy, or scared. Use choices about what could really be happening, such as light, temperature, water, or size.
 
 The goal is not to create a multiple-choice quiz. The goal is to give the child meaningful choices for constructing a hypothesis.
 
