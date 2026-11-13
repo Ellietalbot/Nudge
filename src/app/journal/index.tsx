@@ -52,6 +52,7 @@ export default function Journal() {
               line={entry.finding_text ?? ""}
               date={formatEntryDate(entry.created_at)}
               stepId="reflect"
+              onPress={() => router.push(`/journal/${entry.id}`)}
               photo={
                 entry.photo_path ? (
                   <Image

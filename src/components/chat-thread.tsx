@@ -1,10 +1,10 @@
 import {
-    ChildBubble,
-    NudgeBubble,
-    PhotoBubble,
-    StepDivider,
-    TypingIndicator,
-    type StepId,
+  ChildBubble,
+  NudgeBubble,
+  PhotoBubble,
+  StepDivider,
+  TypingIndicator,
+  type StepId,
 } from "@/design-system";
 import type { StepStarts } from "@/lib/exploration-context";
 import { Message } from "@/lib/nudge-api";
@@ -42,7 +42,12 @@ function MessageBubble({ msg }: { msg: Message }) {
 }
 
 // Observe has no divider: it's where the chat begins.
-const DIVIDER_STEPS: StepId[] = ["ask", "hypothesize", "investigate", "reflect"];
+const DIVIDER_STEPS: StepId[] = [
+  "ask",
+  "hypothesize",
+  "investigate",
+  "reflect",
+];
 
 function Dividers({ stepStarts, at }: { stepStarts: StepStarts; at: number }) {
   return (
@@ -58,10 +63,14 @@ export function ChatThread({
   messages,
   stepStarts,
   loading,
+  autoScroll = true,
 }: {
   messages: Message[];
   stepStarts: StepStarts;
   loading: boolean;
+  /** Jump to the newest message as the chat grows. Off for a saved journal
+   *  page, which should open at the start of the story. */
+  autoScroll?: boolean;
 }) {
   const scrollRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
   return (
@@ -72,9 +81,9 @@ export function ChatThread({
         paddingVertical: 16,
       }}
       ref={scrollRef}
-      onContentSizeChange={() =>
-        scrollRef.current?.scrollToEnd({ animated: true })
-      }
+      onContentSizeChange={() => {
+        if (autoScroll) scrollRef.current?.scrollToEnd({ animated: true });
+      }}
     >
       {messages.map((msg, i) => (
         <React.Fragment key={i}>
