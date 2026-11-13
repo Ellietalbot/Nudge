@@ -38,7 +38,7 @@ export default function Observe() {
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
     photoUri ? "loading" : "idle",
   );
-  const { addMessages, reset } = useExploration();
+  const { addMessages, reset, setPhotoUri } = useExploration();
   const [errorKind, setErrorKind] = useState<AppErrorKind>("server");
 
   useEffect(() => {
@@ -124,6 +124,7 @@ export default function Observe() {
       });
     }
     addMessages(...messages);
+    setPhotoUri(photoUri ?? null);
     router.push("/explore/ask");
   }
   let card;

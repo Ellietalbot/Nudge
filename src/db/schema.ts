@@ -1,5 +1,4 @@
-export const schema = 
-`PRAGMA foreign_keys = ON;
+export const schema = `PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS journal_entries (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     input_type TEXT NOT NULL,
@@ -55,6 +54,7 @@ CREATE TABLE IF NOT EXISTS step_reflect (
 CREATE TABLE IF NOT EXISTS chat_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     journal_entry_id INTEGER NOT NULL,
+    step TEXT NOT NULL CHECK (step IN ('observe', 'ask', 'hypothesize', 'investigate', 'reflect')),
     message_text TEXT,
     sender TEXT NOT NULL CHECK (sender IN ('child', 'nudge')),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),

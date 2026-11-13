@@ -1,4 +1,4 @@
-type TextBlock = { type: "text"; text: string };
+export type TextBlock = { type: "text"; text: string };
 type ImageBlock = {
   type: "image";
   source: {
