@@ -10,7 +10,9 @@ import {
   TextField,
 } from "@/design-system";
 import { ERROR_COPY } from "@/lib/error-copy";
+import { saveExploration } from "@/db/journal";
 import { useExploration } from "@/lib/exploration-context";
+import { buildEntry } from "@/lib/journal-entry";
 import {
   askNudge,
   NudgeError,
@@ -21,14 +23,20 @@ import {
   saferOf,
 } from "@/lib/nudge-api";
 import { REFLECT_PROMPT } from "@/lib/prompts";
+import { keepPhoto } from "@/lib/saved-photo";
 import { REFLECT_SCHEMA } from "@/lib/schemas";
 import { router } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Reflect() {
-  const { messages, addMessages, stepStarts, startStep } = useExploration();
+  const { messages, addMessages, stepStarts, startStep, photoUri, reset } =
+    useExploration();
+  const db = useSQLiteContext();
+  const [saving, setSaving] = useState(false);
+  const [saveFailed, setSaveFailed] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -98,6 +106,28 @@ export default function Reflect() {
     setStatus("loading");
     setAttempt((a) => a + 1); // re-runs the effect
   }
+  async function handleSave() {
+    if (saving) return; // a second tap while saving would save twice
+    setSaving(true);
+    setSaveFailed(false);
+    try {
+      const photoPath = photoUri ? await keepPhoto(photoUri) : null;
+      const entry = buildEntry(messages, stepStarts, photoPath);
+      const id = await saveExploration(db, entry);
+      console.log(
+        `Saved journal entry ${id}: ${entry.chat.length} messages, photo ${photoPath ?? "none"}`,
+      );
+      router.dismissAll(); // Explore tab back to its first screen
+      router.navigate("/journal");
+      reset(); // after leaving, so Reflect doesn't flash an empty chat
+    } catch (error) {
+      console.error("Saving the journal entry failed:", error);
+      setSaveFailed(true); // the exploration is still in memory, so Try again works
+    } finally {
+      setSaving(false);
+    }
+  }
+
   // Safety net: the prompt explains by Nudge's 3rd reply, but if it ever
   // doesn't, still offer the journal after 4 child messages.
   const reflectTurns = messages
@@ -141,11 +171,18 @@ export default function Reflect() {
           />
         )}
         {safety === "stop" && <SafetyCard level="stop" />}
-        {showSave && (
+        {saveFailed && (
+          <ErrorState
+            title={ERROR_COPY.save.title}
+            body={ERROR_COPY.save.body}
+            onRetry={handleSave}
+          />
+        )}
+        {showSave && !saveFailed && (
           <Button
-            label="Save to my journal"
-            // Saving the entry for real is the Week 9 journal task.
-            onPress={() => router.push("/journal")}
+            label={saving ? "Saving…" : "Save to my journal"}
+            onPress={handleSave}
+            disabled={saving}
           />
         )}
         {status !== "error" && safety !== "stop" && (

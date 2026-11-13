@@ -1,6 +1,6 @@
 import { NudgeErrorKind } from "./nudge-api";
 
-export type AppErrorKind = NudgeErrorKind | "photo";
+export type AppErrorKind = NudgeErrorKind | "photo" | "save";
 export const ERROR_COPY: Record<
   AppErrorKind,
   { title: string; body: string; retryLabel?: string }
@@ -19,7 +19,11 @@ export const ERROR_COPY: Record<
   },
   photo: {
     title: "Oops, Nudge couldn’t open that photo",
-    body: "Let’s take a new one!”",
+    body: "Let’s take a new one!",
     retryLabel: "Take a new photo",
+  },
+  save: {
+    title: "Nudge couldn’t save that to your journal",
+    body: "Your discovery is still here. Let’s try again!",
   },
 };
