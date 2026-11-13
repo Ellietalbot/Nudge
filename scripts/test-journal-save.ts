@@ -3,7 +3,7 @@
 // Run: npx tsx scripts/test-journal-save.ts
 import { DatabaseSync } from "node:sqlite";
 import type { SQLiteDatabase } from "expo-sqlite";
-import { saveExploration } from "../src/db/journal";
+import { listEntries, saveExploration } from "../src/db/journal";
 import { schema } from "../src/db/schema";
 import type { JournalEntryData } from "../src/lib/journal-entry";
 
@@ -16,7 +16,7 @@ function check(name: string, actual: unknown, expected: unknown) {
   );
 }
 
-// A stand-in for expo-sqlite with just the two methods saveExploration uses.
+// A stand-in for expo-sqlite with just the methods journal.ts uses.
 function fakeExpoDb(sqlite: DatabaseSync) {
   const txn = {
     async runAsync(sql: string, ...params: (string | number | null)[]) {
@@ -28,6 +28,9 @@ function fakeExpoDb(sqlite: DatabaseSync) {
     },
   };
   return {
+    async getAllAsync(sql: string, ...params: (string | number | null)[]) {
+      return sqlite.prepare(sql).all(...params);
+    },
     async withExclusiveTransactionAsync(
       task: (t: typeof txn) => Promise<void>,
     ) {
@@ -147,6 +150,35 @@ async function main() {
     "no step_observe row for the failed save",
     sqlite.prepare("SELECT COUNT(*) AS n FROM step_observe").get(),
     { n: 2 },
+  );
+
+  console.log("\nListing entries");
+  const rows = await listEntries(db);
+  check("two rows (the failed save isn't there)", rows.length, 2);
+  // Both saves happen in the same second, so this tests the `e.id DESC` tie-breaker.
+  check(
+    "newest first",
+    rows.map((r) => r.id),
+    [2, 1],
+  );
+  check("text entry has no photo", rows[0].photo_path, null);
+  check(
+    "photo entry has its photo, question and finding",
+    {
+      photo_path: rows[1].photo_path,
+      child_question_text: rows[1].child_question_text,
+      finding_text: rows[1].finding_text,
+    },
+    {
+      photo_path: "file:///photos/keyboard.jpg",
+      child_question_text: "How does the computer know which key I press?",
+      finding_text: "Each key sends its own signal.",
+    },
+  );
+  check(
+    "created_at comes back as a string",
+    typeof rows[0].created_at,
+    "string",
   );
 
   console.log(failures === 0 ? "\nAll passed 🎉" : `\n${failures} failed`);

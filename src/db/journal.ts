@@ -62,3 +62,21 @@ export async function saveExploration(
 
   return entryId;
 }
+export type EntryRow = {
+  id: number;
+  created_at: string;
+  photo_path: string | null;
+  child_question_text: string | null;
+  finding_text: string | null;
+};
+
+export async function listEntries(db: SQLiteDatabase): Promise<EntryRow[]> {
+  return db.getAllAsync<EntryRow>(
+    `SELECT e.id, e.created_at, o.photo_path, a.child_question_text, r.finding_text
+   FROM journal_entries e
+   LEFT JOIN step_observe o ON o.journal_entry_id = e.id
+   LEFT JOIN step_ask     a ON a.journal_entry_id = e.id
+   LEFT JOIN step_reflect r ON r.journal_entry_id = e.id
+   ORDER BY e.created_at DESC, e.id DESC`,
+  );
+}
