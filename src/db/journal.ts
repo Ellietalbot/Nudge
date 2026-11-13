@@ -62,6 +62,7 @@ export async function saveExploration(
 
   return entryId;
 }
+
 export type EntryRow = {
   id: number;
   created_at: string;
@@ -70,6 +71,7 @@ export type EntryRow = {
   finding_text: string | null;
 };
 
+// One row per saved exploration, newest first: what the journal list shows.
 export async function listEntries(db: SQLiteDatabase): Promise<EntryRow[]> {
   return db.getAllAsync<EntryRow>(
     `SELECT e.id, e.created_at, o.photo_path, a.child_question_text, r.finding_text

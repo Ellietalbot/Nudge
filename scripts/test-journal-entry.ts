@@ -1,7 +1,12 @@
 // Checks the journal helpers with fake explorations — no phone, no database, no API.
 // Run: npx tsx scripts/test-journal-entry.ts
 import type { Message } from "../src/lib/nudge-api";
-import { buildEntry, messageText, stepOf } from "../src/lib/journal-entry";
+import {
+  buildEntry,
+  formatEntryDate,
+  messageText,
+  stepOf,
+} from "../src/lib/journal-entry";
 
 let failures = 0;
 function check(name: string, actual: unknown, expected: unknown) {
@@ -130,5 +135,16 @@ check("inputType", typed.inputType, "text");
 check("photoPath", typed.photoPath, null);
 check("noticed", typed.noticed, "I noticed the moon looks bigger tonight");
 check("steps not reached are null", typed.finding, null);
+
+console.log("\nformatEntryDate (as a phone in Boise sees it)");
+// Pin the time zone so the checks give the same answer on any computer.
+process.env.TZ = "America/Boise";
+check("afternoon save", formatEntryDate("2026-11-13 19:42:10"), "Nov 13");
+check(
+  "UTC is already tomorrow, Boise is still today",
+  formatEntryDate("2026-11-14 02:00:00"),
+  "Nov 13",
+);
+check("not a date → empty", formatEntryDate("nonsense"), "");
 
 console.log(failures === 0 ? "\nAll passed 🎉" : `\n${failures} failed`);

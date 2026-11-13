@@ -80,3 +80,10 @@ export function buildEntry(
     chat,
   };
 }
+
+// SQLite saves UTC as "YYYY-MM-DD HH:MM:SS" with no zone; this gives the date in the device's own time zone
+export function formatEntryDate(createdAt: string): string {
+  const date = new Date(createdAt.replace(" ", "T") + "Z");
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
