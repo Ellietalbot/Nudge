@@ -3,7 +3,7 @@
 // Run: npx tsx scripts/test-journal-save.ts
 import { DatabaseSync } from "node:sqlite";
 import type { SQLiteDatabase } from "expo-sqlite";
-import { listEntries, saveExploration } from "../src/db/journal";
+import { getEntryChat, listEntries, saveExploration } from "../src/db/journal";
 import { schema } from "../src/db/schema";
 import type { JournalEntryData } from "../src/lib/journal-entry";
 
@@ -180,6 +180,14 @@ async function main() {
     typeof rows[0].created_at,
     "string",
   );
+
+  console.log("\nOne entry's chat");
+  check(
+    "entry 1's chat, in order, as ChatLines",
+    await getEntryChat(db, 1),
+    entry.chat,
+  );
+  check("an id that doesn't exist → []", await getEntryChat(db, 99), []);
 
   console.log(failures === 0 ? "\nAll passed 🎉" : `\n${failures} failed`);
 }

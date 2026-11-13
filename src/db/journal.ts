@@ -1,4 +1,4 @@
-import type { JournalEntryData } from "@/lib/journal-entry";
+import type { ChatLine, JournalEntryData } from "@/lib/journal-entry";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 // Writes one finished exploration: the journal entry, one row per step table,
@@ -80,5 +80,19 @@ export async function listEntries(db: SQLiteDatabase): Promise<EntryRow[]> {
    LEFT JOIN step_ask     a ON a.journal_entry_id = e.id
    LEFT JOIN step_reflect r ON r.journal_entry_id = e.id
    ORDER BY e.created_at DESC, e.id DESC`,
+  );
+}
+
+// One entry's chat, oldest first, for the entry detail screen.
+export async function getEntryChat(
+  db: SQLiteDatabase,
+  id: number,
+): Promise<ChatLine[]> {
+  return db.getAllAsync<ChatLine>(
+    `SELECT step, sender, message_text AS text
+    FROM chat_messages
+    WHERE journal_entry_id = ?
+    ORDER BY id`,
+    id,
   );
 }
