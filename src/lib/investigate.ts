@@ -26,6 +26,12 @@ export const FALLBACK_INVESTIGATION: InvestigationResult = {
     },
   ],
 };
+// Logs why the parser gave up, plus Claude's raw reply, so a fallback can be explained.
+function logFallback(reason: string, raw: string): InvestigationResult {
+  console.warn(`Investigate fallback (${reason}). Raw reply:`, raw);
+  return FALLBACK_INVESTIGATION;
+}
+
 function cleanText(value: unknown): string | null {
   return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
 }
@@ -62,11 +68,12 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
     }
 
     const question = cleanText(data.question);
-    if (!question) return FALLBACK_INVESTIGATION;
+    if (!question) return logFallback("question is missing", raw);
 
     // Claude sends a whole number; the app writes the words and enforces the 15-minute limit.
     const n = data.minutes;
-    if (!Number.isInteger(n) || n < 1 || n > 15) return FALLBACK_INVESTIGATION;
+    if (!Number.isInteger(n) || n < 1 || n > 15)
+      return logFallback("minutes must be a whole number from 1 to 15", raw);
     const minutes = n === 1 ? "About 1 minute" : `About ${n} minutes`;
 
     if (
@@ -74,18 +81,18 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
       data.materials.length < 1 ||
       data.materials.length > 5
     ) {
-      return FALLBACK_INVESTIGATION;
+      return logFallback("needs 1 to 5 materials", raw);
     }
     const materials = data.materials
       .map(cleanMaterial)
       .filter((m: Material | null): m is Material => m !== null);
     if (materials.length !== data.materials.length)
-      return FALLBACK_INVESTIGATION;
+      return logFallback("a material is missing its emoji or name", raw);
 
     if (
       new Set(materials.map((m: Material) => m.name)).size !== materials.length
     ) {
-      return FALLBACK_INVESTIGATION;
+      return logFallback("two materials share a name", raw);
     }
 
     if (
@@ -93,7 +100,7 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
       data.steps.length < 2 ||
       data.steps.length > 6
     ) {
-      return FALLBACK_INVESTIGATION;
+      return logFallback("needs 2 to 6 steps", raw);
     }
     const steps = data.steps
       .map(cleanStep)
@@ -102,10 +109,11 @@ export function parseInvestigationReply(raw: string): InvestigationResult {
           s: { instruction: string; tip?: string } | null,
         ): s is { instruction: string; tip?: string } => s !== null,
       );
-    if (steps.length !== data.steps.length) return FALLBACK_INVESTIGATION;
+    if (steps.length !== data.steps.length)
+      return logFallback("a step is missing its instruction", raw);
 
     return { safety, question, minutes, materials, steps };
   } catch {
-    return FALLBACK_INVESTIGATION;
+    return logFallback("reply is not valid JSON", raw);
   }
 }

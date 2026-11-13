@@ -29,6 +29,12 @@ export const FALLBACK_HYPOTHESIS: HypothesisResult = {
   ],
 };
 
+// Logs why the parser gave up, plus Claude's raw reply, so a fallback can be explained.
+function logFallback(reason: string, raw: string): HypothesisResult {
+  console.warn(`Hypothesize fallback (${reason}). Raw reply:`, raw);
+  return FALLBACK_HYPOTHESIS;
+}
+
 function cleanBank(bank: any): WordBank | null {
   if (typeof bank?.label !== "string" || !Array.isArray(bank.words)) {
     return null;
@@ -57,10 +63,11 @@ export function parseHypothesisReply(raw: string): HypothesisResult {
       return { safety: "stop", frame: "", banks: [] };
     }
 
-    if (typeof data.frame !== "string") return FALLBACK_HYPOTHESIS;
+    if (typeof data.frame !== "string")
+      return logFallback("frame is not text", raw);
     const frame = data.frame.trim();
     if (frame === "" || frame.toLowerCase().startsWith("i think")) {
-      return FALLBACK_HYPOTHESIS;
+      return logFallback("frame is empty or starts with I think", raw);
     }
 
     if (
@@ -68,25 +75,25 @@ export function parseHypothesisReply(raw: string): HypothesisResult {
       data.banks.length < 1 ||
       data.banks.length > 2
     ) {
-      return FALLBACK_HYPOTHESIS;
+      return logFallback("needs 1 or 2 word banks", raw);
     }
 
     const banks = data.banks.map(cleanBank);
     if (banks.some((b: WordBank | null) => b === null)) {
-      return FALLBACK_HYPOTHESIS;
+      return logFallback("a word bank needs a label and 2 to 4 words", raw);
     }
 
     if (new Set(banks.map((b: WordBank) => b.label)).size !== banks.length) {
-      return FALLBACK_HYPOTHESIS;
+      return logFallback("two word banks share a label", raw);
     }
 
     if (frame.split("___").length - 1 !== banks.length) {
-      return FALLBACK_HYPOTHESIS;
+      return logFallback("blanks don't match the number of word banks", raw);
     }
 
     return { safety, frame, banks };
   } catch {
-    return FALLBACK_HYPOTHESIS;
+    return logFallback("reply is not valid JSON", raw);
   }
 }
 
