@@ -1,8 +1,10 @@
 // Checks the journal helpers with fake explorations — no phone, no database, no API.
 // Run: npx tsx scripts/test-journal-entry.ts
 import type { Message } from "../src/lib/nudge-api";
+import type { ChatLine } from "../src/lib/journal-entry";
 import {
   buildEntry,
+  chatToThread,
   formatEntryDate,
   messageText,
   stepOf,
@@ -10,7 +12,9 @@ import {
 
 let failures = 0;
 function check(name: string, actual: unknown, expected: unknown) {
-  const ok = actual === expected;
+  // JSON.stringify compares arrays and objects by contents; `===` would ask
+  // whether they're the very same object.
+  const ok = JSON.stringify(actual) === JSON.stringify(expected);
   if (!ok) failures++;
   console.log(
     `${ok ? "✅" : "❌"} ${name} → ${JSON.stringify(actual)}${ok ? "" : ` (expected ${JSON.stringify(expected)})`}`,
@@ -146,5 +150,44 @@ check(
   "Nov 13",
 );
 check("not a date → empty", formatEntryDate("nonsense"), "");
+
+console.log("\nchatToThread — a saved chat back into a thread");
+const saved: ChatLine[] = [
+  { step: "observe", sender: "child", text: "Look what I found!" },
+  { step: "observe", sender: "nudge", text: "What do you notice?" },
+  { step: "ask", sender: "nudge", text: "What do you wonder?" },
+  { step: "ask", sender: "child", text: "Why is it bumpy?" },
+  { step: "hypothesize", sender: "child", text: "to catch sun" },
+  { step: "investigate", sender: "nudge", text: "Let's test it!" },
+  { step: "reflect", sender: "nudge", text: "Bumps help leaves stay dry." },
+  { step: "reflect", sender: "child", text: "cool" },
+];
+const thread = chatToThread(saved);
+check(
+  "roles",
+  thread.messages.map((m) => m.role),
+  [
+    "user",
+    "assistant",
+    "assistant",
+    "user",
+    "user",
+    "assistant",
+    "assistant",
+    "user",
+  ],
+);
+check("content is the text", thread.messages[3].content, "Why is it bumpy?");
+check(
+  "a divider before each step's first line, none for observe",
+  thread.stepStarts,
+  { ask: 2, hypothesize: 4, investigate: 5, reflect: 6 },
+);
+check(
+  "round trip: chatToThread then buildEntry gives the same chat",
+  buildEntry(thread.messages, thread.stepStarts, null).chat,
+  saved,
+);
+check("an empty chat", chatToThread([]), { messages: [], stepStarts: {} });
 
 console.log(failures === 0 ? "\nAll passed 🎉" : `\n${failures} failed`);

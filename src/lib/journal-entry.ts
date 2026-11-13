@@ -87,3 +87,24 @@ export function formatEntryDate(createdAt: string): string {
   if (Number.isNaN(date.getTime())) return "";
   return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
+
+// Turns a saved chat back into what ChatThread draws: the messages, and where
+// each step's divider goes. The reverse of buildEntry's `chat`.
+export function chatToThread(chat: ChatLine[]): {
+  messages: Message[];
+  stepStarts: StepStarts;
+} {
+  const messages: Message[] = chat.map((line) => ({
+    role: line.sender === "child" ? "user" : "assistant",
+    content: line.text,
+  }));
+
+  const stepStarts: StepStarts = {};
+  // Each step's divider goes before its first line. Observe has none.
+  chat.forEach((line, index) => {
+    if (line.step !== "observe" && stepStarts[line.step] === undefined) {
+      stepStarts[line.step] = index;
+    }
+  });
+  return { messages, stepStarts };
+}
