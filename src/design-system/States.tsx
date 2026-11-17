@@ -1,3 +1,15 @@
+/**
+ * Screen states: empty, error and loading.
+ *
+ *   EmptyState    nothing here yet. Friendly, dashed paper box, one clear next step.
+ *   ThinkingState Nudge is working on a reply: the thinking robot and one short line.
+ *   ErrorState    the app hiccuped. Same calm sand "problem" look as ProblemToast.
+ *                 Never the child's fault, and their work is always safe.
+ *                 Shows the robot holding a spanner: Nudge is fixing it, not the child.
+ *                 Copy comes from ERROR_COPY in src/lib/error-copy.ts.
+ *   Skeleton      a soft shimmering placeholder while things load (still if Reduce Motion is on).
+ *   SkeletonCard  a placeholder shaped like a journal card.
+ */
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, View, type DimensionValue } from "react-native";
 
@@ -9,10 +21,14 @@ import { useReduceMotion } from "./useReduceMotion";
 
 const dashedEdge = "rgba(0, 54, 98, 0.18)";
 
+// ── Empty state ───────────────────────────────────────────────────────────────
+
 export type EmptyStateProps = {
   title: string;
   body: string;
+  /** Illustration or icon tile shown above the title. */
   illustration?: React.ReactNode;
+  /** One primary next step. */
   action?: { label: string; onPress: () => void };
 };
 
@@ -49,9 +65,14 @@ export function EmptyState({
   );
 }
 
+// ── Error state ───────────────────────────────────────────────────────────────
+
 export type ErrorStateProps = {
+  /** e.g. "Your journal didn't load" */
   title: string;
+  /** e.g. "Nudge couldn't reach the internet. Your discoveries are safe." */
   body: string;
+  /** The retry button's label, e.g. "Take a new photo". Defaults to "Try again". */
   retryLabel?: string;
   onRetry?: () => void;
 };
@@ -89,7 +110,10 @@ export function ErrorState({
   );
 }
 
+// ── Thinking state ────────────────────────────────────────────────────────────
+
 export type ThinkingStateProps = {
+  /** e.g. "Nudge is taking a look…" */
   title?: string;
 };
 
@@ -113,6 +137,8 @@ export function ThinkingState({
     </View>
   );
 }
+
+// ── Skeleton ──────────────────────────────────────────────────────────────────
 
 export type SkeletonProps = {
   width?: DimensionValue;

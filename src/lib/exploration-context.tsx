@@ -1,5 +1,5 @@
 import type { StepId } from "@/design-system";
-import { Message } from "@/lib/nudge-api";
+import { Message, saferOf, type NudgeSafety } from "@/lib/nudge-api";
 import { createContext, useContext, useState } from "react";
 
 // Where each step's messages begin, e.g. { ask: 3, hypothesize: 7 }.
@@ -14,6 +14,9 @@ type Exploration = {
   reset: () => void;
   photoUri: string | null;
   setPhotoUri: (uri: string | null) => void;
+  // The most cautious safety level any step has reported in this exploration.
+  safety: NudgeSafety;
+  raiseSafety: (level: NudgeSafety) => void;
 };
 
 const ExplorationContext = createContext<Exploration | null>(null);
@@ -26,6 +29,7 @@ export function ExplorationProvider({
   const [messages, setMessages] = useState<Message[]>([]);
   const [stepStarts, setStepStarts] = useState<StepStarts>({});
   const [photoUri, setPhotoUri] = useState<string | null>(null);
+  const [safety, setSafety] = useState<NudgeSafety>("none");
 
   function addMessages(...newMessages: Message[]) {
     setMessages((prev) => [...prev, ...newMessages]);
@@ -46,10 +50,16 @@ export function ExplorationProvider({
     );
   }
 
+  // Only ever goes up during an exploration: a warning never disappears.
+  function raiseSafety(level: NudgeSafety) {
+    setSafety((prev) => saferOf(prev, level));
+  }
+
   function reset() {
     setMessages([]);
     setStepStarts({});
     setPhotoUri(null);
+    setSafety("none");
   }
 
   return (
@@ -63,6 +73,8 @@ export function ExplorationProvider({
         reset,
         photoUri,
         setPhotoUri,
+        safety,
+        raiseSafety,
       }}
     >
       {children}

@@ -17,10 +17,8 @@ import {
   askNudge,
   NudgeError,
   NudgeErrorKind,
-  NudgeSafety,
   parseNudgeReply,
   REFLECT_FALLBACK_REPLY,
-  saferOf,
 } from "@/lib/nudge-api";
 import { REFLECT_PROMPT } from "@/lib/prompts";
 import { keepPhoto } from "@/lib/saved-photo";
@@ -32,15 +30,22 @@ import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Reflect() {
-  const { messages, addMessages, stepStarts, startStep, photoUri, reset } =
-    useExploration();
+  const {
+    messages,
+    addMessages,
+    stepStarts,
+    startStep,
+    photoUri,
+    reset,
+    safety,
+    raiseSafety,
+  } = useExploration();
   const db = useSQLiteContext();
   const [saving, setSaving] = useState(false);
   const [saveFailed, setSaveFailed] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
-  const [safety, setSafety] = useState<NudgeSafety>("none");
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [text, setText] = useState("");
@@ -83,7 +88,7 @@ export default function Reflect() {
 
         console.log("Nudge says (Reflect):", result);
         addMessages({ role: "assistant", content: result.reply });
-        setSafety((prev) => saferOf(prev, result.safety));
+        raiseSafety(result.safety);
         setReady((prev) => prev || result.readyForNext);
         setStatus("ready");
       } catch (error) {
@@ -112,7 +117,7 @@ export default function Reflect() {
     setSaveFailed(false);
     try {
       const photoPath = photoUri ? await keepPhoto(photoUri) : null;
-      const entry = buildEntry(messages, stepStarts, photoPath);
+      const entry = buildEntry(messages, stepStarts, photoPath, safety);
       const id = await saveExploration(db, entry);
       console.log(
         `Saved journal entry ${id}: ${entry.chat.length} messages, photo ${photoPath ?? "none"}`,

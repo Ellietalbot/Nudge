@@ -1,6 +1,7 @@
 // Checks the journal helpers with fake explorations — no phone, no database, no API.
 // Run: npx tsx scripts/test-journal-entry.ts
 import type { Message } from "../src/lib/nudge-api";
+import { noticedLine } from "../src/lib/noticed";
 import type { ChatLine } from "../src/lib/journal-entry";
 import {
   buildEntry,
@@ -139,6 +140,40 @@ check("inputType", typed.inputType, "text");
 check("photoPath", typed.photoPath, null);
 check("noticed", typed.noticed, "I noticed the moon looks bigger tonight");
 check("steps not reached are null", typed.finding, null);
+check("safety defaults to none", typed.safety, "none");
+check(
+  "safety is passed through",
+  buildEntry(full, fullStarts, null, "askAdult").safety,
+  "askAdult",
+);
+
+console.log("\nnoticedLine — Observe's typed line");
+check(
+  "plain text",
+  noticedLine("Bumps on the leaf"),
+  "I noticed bumps on the leaf",
+);
+check(
+  "already starts with I noticed",
+  noticedLine("i noticed bumps"),
+  "I noticed bumps",
+);
+check("starts with I", noticedLine("I see bumps"), "I noticed I see bumps");
+check(
+  "I'm keeps its capital",
+  noticedLine("I'm seeing spots"),
+  "I noticed I'm seeing spots",
+);
+check(
+  "a word starting with i is lowercased",
+  noticedLine("Ice on the window"),
+  "I noticed ice on the window",
+);
+check(
+  "extra spaces trimmed",
+  noticedLine("  red leaves "),
+  "I noticed red leaves",
+);
 
 console.log("\nformatEntryDate (as a phone in Boise sees it)");
 // Pin the time zone so the checks give the same answer on any computer.

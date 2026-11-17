@@ -9,7 +9,7 @@ import {
   listEntries,
   saveExploration,
 } from "../src/db/journal";
-import { schema } from "../src/db/schema";
+import { migrationV2, schema } from "../src/db/schema";
 import type { JournalEntryData } from "../src/lib/journal-entry";
 
 let failures = 0;
@@ -60,6 +60,7 @@ const entry: JournalEntryData = {
   hypothesis: "each key has its own spot.",
   experiment: "Let's test it!\n1. Draw four squares",
   finding: "Each key sends its own signal.",
+  safety: "doNotTouch",
   chat: [
     { step: "observe", sender: "child", text: "Look what I found!" },
     { step: "ask", sender: "nudge", text: "What's a question?" },
@@ -74,6 +75,7 @@ const entry: JournalEntryData = {
 async function main() {
   const sqlite = new DatabaseSync(":memory:");
   sqlite.exec(schema);
+  sqlite.exec(migrationV2);
   const db = fakeExpoDb(sqlite);
 
   console.log("\nSaving one exploration");
@@ -125,7 +127,12 @@ async function main() {
   console.log("\nA second save gets its own id");
   check(
     "returns 2",
-    await saveExploration(db, { ...entry, inputType: "text", photoPath: null }),
+    await saveExploration(db, {
+      ...entry,
+      inputType: "text",
+      photoPath: null,
+      safety: "none",
+    }),
     2,
   );
   check(
@@ -223,6 +230,11 @@ async function main() {
       experiment_text: entry.experiment,
       finding_text: entry.finding,
     },
+  );
+  check(
+    "safety levels saved and listed",
+    dash.map((r) => r.safety_level),
+    ["none", "doNotTouch"],
   );
   check(
     "message_count counts each entry's own chat",

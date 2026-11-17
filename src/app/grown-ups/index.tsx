@@ -3,6 +3,7 @@ import { listDashboardEntries, type DashboardRow } from "@/db/journal";
 import { Button, Text, palette, radius, shadow, space } from "@/design-system";
 import { useChildName } from "@/lib/child-name";
 import { formatEntryDate } from "@/lib/journal-entry";
+import type { NudgeSafety } from "@/lib/nudge-api";
 import { useLock } from "@/lib/lock";
 import { router, useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
@@ -51,6 +52,7 @@ export default function Dashboard() {
                 {entry.input_type === "photo" ? "Photo" : "Typed"} ·{" "}
                 {entry.message_count} messages
               </Text>
+              <Row label="Safety" text={SAFETY_NOTE[entry.safety_level]} />
               <Row label="Noticed" text={entry.noticed_text} />
               <Row label="Asked" text={entry.child_question_text} />
               <Row label="Guessed" text={entry.hypothesis_text} />
@@ -63,6 +65,15 @@ export default function Dashboard() {
     </Screen>
   );
 }
+
+// What the safety level means, for a grown-up. "none" shows no row.
+const SAFETY_NOTE: Record<NudgeSafety, string | null> = {
+  none: null,
+  caution: "Nudge said to be careful.",
+  askAdult: "Nudge asked for a grown-up's help.",
+  doNotTouch: "Nudge said not to touch it.",
+  stop: "Nudge stopped this exploration.",
+};
 
 // One step's line on a card. Shows nothing if that step wasn't saved.
 function Row({

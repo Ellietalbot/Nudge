@@ -33,10 +33,10 @@ function f(weight: keyof typeof fontFamily, fontSize: number, lineHeight: number
 const softEdge = 'rgba(0, 54, 98, 0.08)';
 
 /** "<b>I tried</b> turning the jar upside down." with the starter in the step's text colour. */
-function StarterLine({ stepId, line, style }: { stepId: StepId; line: string; style: TextStyle }) {
+function StarterLine({ stepId, line, style, lines }: { stepId: StepId; line: string; style: TextStyle; lines?: number }) {
   const s = getStep(stepId);
   return (
-    <Text variant="body" style={style}>
+    <Text variant="body" style={style} numberOfLines={lines}>
       <Text variant="body" color={s.text} style={[style, { fontFamily: fontFamily[800] }]}>{s.prompt}</Text> {line}
     </Text>
   );
@@ -113,7 +113,7 @@ export function JournalEntryRow({ question, line, date, stepId, photo, onPress }
       </View>
       <View style={styles.rowText}>
         <Text variant="title" style={f(800, 18, 22)}>{question}</Text>
-        <StarterLine stepId={stepId} line={line} style={f(500, 16, 22)} />
+        <StarterLine stepId={stepId} line={line} style={f(500, 16, 22)} lines={2} />
         <Text variant="caption" color={palette.navyMuted}>{date}</Text>
       </View>
       <IconChevronRight size={22} color={palette.navyMuted} />

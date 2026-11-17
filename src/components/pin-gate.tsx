@@ -38,6 +38,7 @@ export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
             keyboardType="number-pad"
             maxLength={4}
             style={styles.pinInput}
+            accessibilityLabel="New 4-digit PIN"
           />
           <Button
             label="Save PIN"
@@ -60,8 +61,13 @@ export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
             keyboardType="number-pad"
             maxLength={4}
             style={styles.pinInput}
+            accessibilityLabel="Your 4-digit PIN"
           />
-          {error !== "" && <Text variant="body">{error}</Text>}
+          {error !== "" && (
+            <Text variant="body" accessibilityLiveRegion="polite">
+              {error}
+            </Text>
+          )}
           <Button
             label="Unlock"
             disabled={pin.length !== 4}

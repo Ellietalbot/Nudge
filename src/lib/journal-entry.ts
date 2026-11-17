@@ -1,4 +1,4 @@
-import type { Message, TextBlock } from "./nudge-api";
+import type { Message, NudgeSafety, TextBlock } from "./nudge-api";
 import type { StepId } from "@/design-system";
 import type { StepStarts } from "./exploration-context";
 
@@ -19,6 +19,7 @@ export type JournalEntryData = {
   hypothesis: string | null; // step_hypothesize.hypothesis_text
   experiment: string | null; // step_investigate.experiment_text
   finding: string | null; // step_reflect.finding_text
+  safety: NudgeSafety; // journal_entries.safety_level
   chat: ChatLine[];
 };
 
@@ -50,6 +51,7 @@ export function buildEntry(
   messages: Message[],
   stepStarts: StepStarts,
   photoUri: string | null,
+  safety: NudgeSafety = "none",
 ): JournalEntryData {
   const chat: ChatLine[] = messages.map((message, index) => ({
     step: stepOf(index, stepStarts),
@@ -77,6 +79,7 @@ export function buildEntry(
     hypothesis: last("hypothesize", "child"),
     experiment: first("investigate", "nudge"), // "Let's test it!" + the plan
     finding: last("reflect", "nudge"), // the explanation comes last
+    safety,
     chat,
   };
 }

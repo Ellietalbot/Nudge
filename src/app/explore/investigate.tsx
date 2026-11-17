@@ -23,8 +23,15 @@ import { View } from "react-native";
 
 export default function Investigate() {
   // 1. Keep what we need from the context.
-  const { messages, addMessages, trimTo, stepStarts, startStep } =
-    useExploration();
+  const {
+    messages,
+    addMessages,
+    trimTo,
+    stepStarts,
+    startStep,
+    safety,
+    raiseSafety,
+  } = useExploration();
 
   // 2. All the state, including status and attempt.
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
@@ -57,6 +64,7 @@ export default function Investigate() {
         console.log("Nudge says (Investigate):", parsed);
         if (!cancelled) {
           setResult(parsed);
+          raiseSafety(parsed.safety);
           setStatus("ready");
         }
       } catch (error) {
@@ -107,17 +115,15 @@ export default function Investigate() {
         }}
       />
     );
-  } else if (result?.safety === "stop") {
+  } else if (result && safety === "stop") {
     card = <SafetyCard level="stop" />;
   } else if (result) {
     card = (
       <View style={{ gap: 16 }}>
-        {result.safety !== "none" && (
+        {safety !== "none" && (
           <SafetyCard
-            level={result.safety}
-            compact={
-              result.safety === "caution" || result.safety === "askAdult"
-            }
+            level={safety}
+            compact={safety === "caution" || safety === "askAdult"}
           />
         )}
         <InvestigationCard
@@ -125,7 +131,7 @@ export default function Investigate() {
           minutes={result.minutes}
           safety={[
             { icon: "adult", label: "With a grown-up" },
-            ...(result.safety === "doNotTouch"
+            ...(safety === "doNotTouch"
               ? [{ icon: "touch" as const, label: "Don't touch it" }]
               : []),
           ]}

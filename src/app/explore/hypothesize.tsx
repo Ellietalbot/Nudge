@@ -25,8 +25,15 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Hypothesize() {
-  const { messages, addMessages, trimTo, stepStarts, startStep } =
-    useExploration();
+  const {
+    messages,
+    addMessages,
+    trimTo,
+    stepStarts,
+    startStep,
+    safety,
+    raiseSafety,
+  } = useExploration();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -57,6 +64,7 @@ export default function Hypothesize() {
         console.log("Nudge says (Hypothesize):", parsed);
         if (!cancelled) {
           setResult(parsed);
+          raiseSafety(parsed.safety);
           setStatus("ready");
         }
       } catch (error) {
@@ -94,16 +102,16 @@ export default function Hypothesize() {
         }}
       />
     );
-  } else if (status === "ready" && result?.safety === "stop") {
+  } else if (status === "ready" && result && safety === "stop") {
     // Distress or inappropriate content: no builder, so the loop can't continue.
     dock = <SafetyCard level="stop" />;
   } else if (status === "ready" && result) {
     dock = (
       <View style={{ gap: 8 }}>
-        {result.safety !== "none" && (
+        {safety !== "none" && (
           <SafetyCard
-            level={result.safety}
-            compact={result.safety === "caution" || result.safety === "askAdult"}
+            level={safety}
+            compact={safety === "caution" || safety === "askAdult"}
           />
         )}
         <HypothesisBuilder

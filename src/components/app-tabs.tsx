@@ -6,7 +6,7 @@ import { Colors } from "@/constants/theme";
 
 export default function AppTabs() {
   const scheme = useColorScheme();
-  const colors = Colors[scheme === "unspecified" ? "light" : scheme];
+  const colors = Colors[scheme === "dark" ? "dark" : "light"];
   // Hide the tab bar once an exploration starts (camera, Observe, Ask, …),
   // so the child stays in the loop. "/explore" itself keeps it.
   const inExploration = usePathname().startsWith("/explore/");

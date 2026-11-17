@@ -61,3 +61,9 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     updated_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (journal_entry_id) REFERENCES journal_entries(id) ON DELETE CASCADE
    );`;
+
+// v2: the exploration's safety level (the most cautious any step reported),
+// so the parent dashboard can show it. ALTER, not CREATE: real entries exist.
+export const migrationV2 = `ALTER TABLE journal_entries
+  ADD COLUMN safety_level TEXT NOT NULL DEFAULT 'none'
+  CHECK (safety_level IN ('none', 'caution', 'askAdult', 'doNotTouch', 'stop'));`;

@@ -1,4 +1,5 @@
 import type { ChatLine, JournalEntryData } from "@/lib/journal-entry";
+import type { NudgeSafety } from "@/lib/nudge-api";
 import type { SQLiteDatabase } from "expo-sqlite";
 
 // Writes one finished exploration: the journal entry, one row per step table,
@@ -14,8 +15,9 @@ export async function saveExploration(
   // use `txn`, not `db`. If anything throws, SQLite rolls everything back.
   await db.withExclusiveTransactionAsync(async (txn) => {
     const entry = await txn.runAsync(
-      "INSERT INTO journal_entries (input_type) VALUES (?)",
+      "INSERT INTO journal_entries (input_type, safety_level) VALUES (?, ?)",
       data.inputType,
+      data.safety,
     );
     entryId = entry.lastInsertRowId;
 
@@ -75,6 +77,7 @@ export type DashboardRow = {
   id: number;
   created_at: string;
   input_type: string;
+  safety_level: NudgeSafety;
   photo_path: string | null;
   noticed_text: string | null;
   child_question_text: string | null;
@@ -116,7 +119,7 @@ export async function listDashboardEntries(
   db: SQLiteDatabase,
 ): Promise<DashboardRow[]> {
   return db.getAllAsync<DashboardRow>(
-    `SELECT e.id, e.created_at, e.input_type, o.photo_path,
+    `SELECT e.id, e.created_at, e.input_type, e.safety_level, o.photo_path,
       o.question_text AS noticed_text,
       a.child_question_text,
       h.hypothesis_text,

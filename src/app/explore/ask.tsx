@@ -15,9 +15,7 @@ import {
   askNudge,
   NudgeError,
   NudgeErrorKind,
-  NudgeSafety,
   parseNudgeReply,
-  saferOf,
 } from "@/lib/nudge-api";
 import { ASK_PROMPT } from "@/lib/prompts";
 import { ASK_SCHEMA } from "@/lib/schemas";
@@ -27,11 +25,11 @@ import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Ask() {
-  const { messages, addMessages, stepStarts, startStep } = useExploration();
+  const { messages, addMessages, stepStarts, startStep, safety, raiseSafety } =
+    useExploration();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
-  const [safety, setSafety] = useState<NudgeSafety>("none");
   const [ready, setReady] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [text, setText] = useState("");
@@ -73,7 +71,7 @@ export default function Ask() {
         const result = parseNudgeReply(raw);
         console.log("Nudge says (Ask):", result);
         addMessages({ role: "assistant", content: result.reply });
-        setSafety((prev) => saferOf(prev, result.safety));
+        raiseSafety(result.safety);
         setReady((prev) => prev || result.readyForNext);
         setStatus("ready");
       } catch (error) {

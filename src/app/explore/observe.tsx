@@ -18,6 +18,7 @@ import {
   NudgeSafety,
   parseNudgeReply,
 } from "@/lib/nudge-api";
+import { noticedLine } from "@/lib/noticed";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
 import { OBSERVE_SCHEMA } from "@/lib/schemas";
@@ -38,7 +39,7 @@ export default function Observe() {
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
     photoUri ? "loading" : "idle",
   );
-  const { addMessages, reset, setPhotoUri } = useExploration();
+  const { addMessages, reset, setPhotoUri, raiseSafety } = useExploration();
   const [errorKind, setErrorKind] = useState<AppErrorKind>("server");
 
   useEffect(() => {
@@ -79,7 +80,7 @@ export default function Observe() {
         );
         const result = parseNudgeReply(raw);
 
-        console.log("Nudge says:", result);
+        console.log("Nudge says (Observe):", result);
         if (!cancelled) {
           setReply(result.reply);
           setSafety(result.safety);
@@ -107,21 +108,16 @@ export default function Observe() {
     const trimmed = text.trim();
     if (!trimmed) return;
     reset();
+    raiseSafety(safety); // after reset(), which sets it back to "none"
     const messages: Message[] = [];
     if (photoMessage) {
       messages.push(
         photoMessage,
         { role: "assistant", content: reply },
-        {
-          role: "user",
-          content: `I noticed ${trimmed.charAt(0).toLowerCase() + trimmed.slice(1)}`,
-        },
+        { role: "user", content: noticedLine(trimmed) },
       );
     } else {
-      messages.push({
-        role: "user",
-        content: `I noticed ${trimmed.charAt(0).toLowerCase() + trimmed.slice(1)}`,
-      });
+      messages.push({ role: "user", content: noticedLine(trimmed) });
     }
     addMessages(...messages);
     setPhotoUri(photoUri ?? null);
