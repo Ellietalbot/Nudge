@@ -3,7 +3,7 @@ import { Button, Text, palette } from "@/design-system";
 import { useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
-import { StyleSheet, TextInput } from "react-native";
+import { Alert, StyleSheet, TextInput } from "react-native";
 
 export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
   const [mode, setMode] = useState<"loading" | "setup" | "enter">("loading");
@@ -25,6 +25,27 @@ export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
       checkPin();
     }, []),
   );
+  // The PIN is a convenience lock (FR11), not a security boundary, so a
+  // forgotten PIN can simply be replaced. The journal isn't touched.
+  function forgotPin() {
+    Alert.alert(
+      "Set a new PIN?",
+      "Your old PIN will be removed. Your child's journal stays the same.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Set a new PIN",
+          onPress: async () => {
+            await SecureStore.deleteItemAsync("parentPin");
+            setPin("");
+            setError("");
+            setMode("setup");
+          },
+        },
+      ],
+    );
+  }
+
   return (
     <Screen>
       {mode === "loading" && <Text variant="body">Loading…</Text>}
@@ -82,6 +103,7 @@ export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
               }
             }}
           />
+          <Button label="Forgot PIN?" variant="quiet" onPress={forgotPin} />
         </>
       )}
     </Screen>

@@ -1,6 +1,7 @@
 import type { StepId } from "@/design-system";
 import { Message, saferOf, type NudgeSafety } from "@/lib/nudge-api";
 import { createContext, useContext, useState } from "react";
+import { dropFrom } from "./step-starts";
 
 // Where each step's messages begin, e.g. { ask: 3, hypothesize: 7 }.
 export type StepStarts = Partial<Record<StepId, number>>;
@@ -11,6 +12,7 @@ type Exploration = {
   trimTo: (length: number) => void;
   stepStarts: StepStarts;
   startStep: (stepId: StepId) => void;
+  dropStepsFrom: (stepId: StepId) => void;
   reset: () => void;
   photoUri: string | null;
   setPhotoUri: (uri: string | null) => void;
@@ -55,6 +57,14 @@ export function ExplorationProvider({
     setSafety((prev) => saferOf(prev, level));
   }
 
+  // The child went back and changed an earlier step: forget `stepId` and every
+  // step after it (their messages and their starts), so they run again.
+  function dropStepsFrom(stepId: StepId) {
+    const { keep, starts } = dropFrom(stepStarts, stepId);
+    if (keep !== undefined) trimTo(keep);
+    setStepStarts(starts);
+  }
+
   function reset() {
     setMessages([]);
     setStepStarts({});
@@ -70,6 +80,7 @@ export function ExplorationProvider({
         trimTo,
         stepStarts,
         startStep,
+        dropStepsFrom,
         reset,
         photoUri,
         setPhotoUri,

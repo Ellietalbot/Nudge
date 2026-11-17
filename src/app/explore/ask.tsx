@@ -25,8 +25,15 @@ import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Ask() {
-  const { messages, addMessages, stepStarts, startStep, safety, raiseSafety } =
-    useExploration();
+  const {
+    messages,
+    addMessages,
+    stepStarts,
+    startStep,
+    dropStepsFrom,
+    safety,
+    raiseSafety,
+  } = useExploration();
   const [status, setStatus] = useState<"loading" | "ready" | "error">(
     "loading",
   );
@@ -88,6 +95,9 @@ export default function Ask() {
     const trimmed = text.trim();
     if (!trimmed || status === "loading") return;
 
+    // Back from Hypothesize (or later) and asking more: the old guess and
+    // anything after it no longer fit, so those steps start over.
+    dropStepsFrom("hypothesize");
     addMessages({ role: "user", content: trimmed });
     setText("");
     started.current = false; // allow the effect to call Nudge again

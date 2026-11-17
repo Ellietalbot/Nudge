@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite";
 import type { SQLiteDatabase } from "expo-sqlite";
 import {
   getEntryChat,
+  getEntrySummary,
   listDashboardEntries,
   listEntries,
   saveExploration,
@@ -35,6 +36,9 @@ function fakeExpoDb(sqlite: DatabaseSync) {
   return {
     async getAllAsync(sql: string, ...params: (string | number | null)[]) {
       return sqlite.prepare(sql).all(...params);
+    },
+    async getFirstAsync(sql: string, ...params: (string | number | null)[]) {
+      return sqlite.prepare(sql).get(...params) ?? null;
     },
     async withExclusiveTransactionAsync(
       task: (t: typeof txn) => Promise<void>,
@@ -200,6 +204,19 @@ async function main() {
     entry.chat,
   );
   check("an id that doesn't exist → []", await getEntryChat(db, 99), []);
+
+  console.log("\nOne entry's summary");
+  const summary = await getEntrySummary(db, 1);
+  check(
+    "photo and question for entry 1",
+    { photo_path: summary?.photo_path, question: summary?.child_question_text },
+    {
+      photo_path: "file:///photos/keyboard.jpg",
+      question: "How does the computer know which key I press?",
+    },
+  );
+  check("created_at is a string", typeof summary?.created_at, "string");
+  check("an id that doesn't exist → null", await getEntrySummary(db, 99), null);
 
   console.log("\nDashboard rows");
   const dash = await listDashboardEntries(db);

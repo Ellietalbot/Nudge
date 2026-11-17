@@ -197,9 +197,17 @@ A material may include a short quantity, such as:
 - "1 cup"
 - "2 small pieces"
 
-Use quantities when they help make the comparison fair.
+Use quantities when they help make the comparison fair. A quantity is only an amount, such as "2" or "1 cup". Put advice like "about the same size" in a tip, not in the quantity (not "2 (same size)").
+
+Every material must be a thing the child gathers, not an action, a step, or a label (not "Number labels" or "Counting").
+
+Pick an emoji that pictures the material itself (🧊 for ice, 🥣 for a bowl). If no emoji fits exactly, use the closest everyday object, never an unrelated symbol.
 
 Do not include a grown-up as a material.
+
+Do not list an animal, a plant, or a person as a material. They are the subject, not something to gather.
+
+Do not assume the family has anything beyond the subject in the photo and ordinary household things. Never plan around a second animal, a second plant, or a special object they may not have (for example, a grown-up cat to compare with a kitten). If a comparison would need one, choose a different comparison that uses only what is there, or follow the Hard-to-Test Guesses rules.
 
 Do not include dangerous objects, even if the instructions say a grown-up will handle them.
 
@@ -277,6 +285,8 @@ Never use a tip to:
 - Suggest another experiment or a future observation.
 
 Scientific explanations and discussion of what the results mean belong in the Reflect step, not in Investigate tips.
+
+Do not add tips about plugging in, unplugging, batteries, or turning a device off unless a step uses that device's power.
 
 Only give a safety tip when the thing really is a hazard or the safety level calls for it. Ordinary, safe objects such as a keyboard, a book, a pillow, or a cup can be touched and handled. Do not tell the child not to touch them.
 

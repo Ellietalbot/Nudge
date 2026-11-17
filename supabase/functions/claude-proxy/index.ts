@@ -55,7 +55,21 @@ export default {
         body: JSON.stringify({
           model: MODEL,
           max_tokens: MAX_TOKENS,
-          ...(body.system ? { system: body.system } : {}),
+          // Prompt caching: each step sends the same long system prompt every
+          // time (Investigate's is ~11,500 tokens). Marking it lets Claude
+          // reuse it for 5 minutes, so later calls are faster and cheaper.
+          // Prompts shorter than the model's minimum just aren't cached.
+          ...(body.system
+            ? {
+                system: [
+                  {
+                    type: "text",
+                    text: body.system,
+                    cache_control: { type: "ephemeral" },
+                  },
+                ],
+              }
+            : {}),
           ...(body.schema
             ? {
                 output_config: {
@@ -86,6 +100,13 @@ export default {
       console.error("Reply cut off at MAX_TOKENS", data.usage);
     }
 
+    // Shows whether caching worked: "read" > 0 means the prompt was reused.
+    console.log("Prompt cache", {
+      written: data.usage?.cache_creation_input_tokens ?? 0,
+      read: data.usage?.cache_read_input_tokens ?? 0,
+      uncached: data.usage?.input_tokens ?? 0,
+    });
+
     // Return just the text, which is all the app needs.
     const textBlocks = (data.content ?? []).filter(
       (b: { type: string }) => b.type === "text",
@@ -96,7 +117,9 @@ export default {
       console.log(
         "Reply in several text pieces:",
         (data.content ?? []).map((b: { type: string }) => b.type),
-        textBlocks.map((b: { text: string }) => JSON.stringify(b.text.slice(-15))),
+        textBlocks.map((b: { text: string }) =>
+          JSON.stringify(b.text.slice(-15)),
+        ),
       );
     }
     const text = textBlocks.map((b: { text: string }) => b.text).join("");

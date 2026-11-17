@@ -175,6 +175,56 @@ const tests: { name: string; expect: string; messages: Message[] }[] = [
     ],
   },
   {
+    name: "sponge model",
+    expect:
+      "TRUE — says the sponges were a model of skin, then the real science; ≤4 sentences",
+    messages: [
+      ...upToReflect(
+        "A water bottle! What do you notice?",
+        "when I pinch my skin it goes back slowly",
+        "why does my skin do that?",
+        "I think my skin goes back slower when I haven't had water.",
+        "Does a dry sponge spring back slower than a wet sponge?\n1. Soak one sponge in the water.\n2. Press the dry sponge gently with your finger.\n3. Press the wet sponge gently with your finger the same way.\n4. Compare which sponge springs back slower.",
+      ),
+      {
+        role: "assistant",
+        content: "What happened when you pressed the sponges?",
+      },
+      { role: "user", content: "the dry one stayed squished longer" },
+      {
+        role: "assistant",
+        content:
+          "You noticed the dry one stayed squished longer! Did that match your guess?",
+      },
+      { role: "user", content: "yes" },
+    ],
+  },
+  {
+    name: "pillow",
+    expect:
+      "TRUE — real pillows, so NOT called a model; a known answer, no 'scientists are still learning'; ≤4 sentences",
+    messages: [
+      ...upToReflect(
+        "That's a pillow! What do you notice?",
+        "it feels squishy",
+        "why are some pillows softer?",
+        "I think pillows are softer when they are filled with cotton.",
+        "Do pillows filled with cotton feel softer?\n1. Put both pillows side by side.\n2. Press one hand gently into the cotton pillow.\n3. Press your hand the same way into the other pillow.\n4. Decide which pillow feels softer.",
+      ),
+      {
+        role: "assistant",
+        content: "What did you notice when you pressed the pillows?",
+      },
+      { role: "user", content: "the other one was softer" },
+      {
+        role: "assistant",
+        content:
+          "You noticed the other pillow felt softer! Was that like your guess?",
+      },
+      { role: "user", content: "no" },
+    ],
+  },
+  {
     name: "different guess",
     expect:
       "TRUE — names the guess, then the science; no 'That's okay', 'not really', 'actually', 'instead'",
@@ -238,7 +288,7 @@ const tests: { name: string; expect: string; messages: Message[] }[] = [
 // Phrases that tell a child their guess was wrong, or comfort them as if
 // something went wrong. Fine only if the child sounded upset.
 const JUDGING =
-  /(that'?s okay|it'?s okay|don'?t worry|no problem|nice try|not really|\bactually\b|\binstead\b|but (really|scientists|real))/i;
+  /(that'?s okay|it'?s okay|don'?t worry|no problem|nice try|not really|\bactually\b|\binstead\b|but (really|scientists|real|here'?s)|(don'?t|doesn'?t) need to)/i;
 
 // Words that shouldn't appear in a reply to a 6–8-year-old. A hit needs a look.
 const RED_FLAGS =
@@ -260,6 +310,31 @@ async function main() {
       `got:    readyForNext ${r.readyForNext}, safety ${r.safety}, ~${sentences} sentences`,
     );
     console.log(`reply:  ${r.reply}`);
+    if (sentences > 4)
+      console.log(`📏 too long: ~${sentences} sentences (max 4)`);
+    // Cases whose investigation used a stand-in must say "model"; real tests must not.
+    const usedModel = (() => {
+      try {
+        return JSON.parse(raw.slice(raw.indexOf("{"), raw.lastIndexOf("}") + 1))
+          .usedModel;
+      } catch {
+        return undefined;
+      }
+    })();
+    if (usedModel !== undefined) console.log(`        usedModel ${usedModel}`);
+    const needsModel = ["mushroom", "sky", "sponge model"].includes(t.name);
+    if (r.readyForNext && needsModel && !/model/i.test(r.reply))
+      console.log(
+        "🧩 used a stand-in but the reply doesn't say it was a model",
+      );
+    if (t.name === "pillow" && /model/i.test(r.reply))
+      console.log(
+        "🧩 real pillows were tested, but the reply calls it a model",
+      );
+    if (/still learning/i.test(r.reply))
+      console.log(
+        `🔎 "still learning": is this question really open in science?`,
+      );
     const flag = r.reply.match(RED_FLAGS);
     if (flag) console.log(`🚩 check this: contains "${flag[0]}"`);
     const judging = r.reply.match(JUDGING);

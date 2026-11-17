@@ -39,10 +39,14 @@ export const REFLECT_SCHEMA = {
   type: "object",
   properties: {
     safety: SAFETY,
+    // Written before the reply: did the investigation use a stand-in (paper,
+    // a sponge, a drawing) instead of the real thing? If so, the explanation
+    // must say it was a model. Not shown to the child; the parser ignores it.
+    usedModel: { type: "boolean" },
     reply: { type: "string" },
     readyForNext: { type: "boolean" },
   },
-  required: ["safety", "reply", "readyForNext"],
+  required: ["safety", "usedModel", "reply", "readyForNext"],
   additionalProperties: false,
 };
 

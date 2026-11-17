@@ -2,6 +2,7 @@
 // Run: npx tsx scripts/test-journal-entry.ts
 import type { Message } from "../src/lib/nudge-api";
 import { noticedLine } from "../src/lib/noticed";
+import { dropFrom } from "../src/lib/step-starts";
 import type { ChatLine } from "../src/lib/journal-entry";
 import {
   buildEntry,
@@ -146,6 +147,30 @@ check(
   buildEntry(full, fullStarts, null, "askAdult").safety,
   "askAdult",
 );
+
+console.log("\ndropFrom — going back and changing an earlier step");
+const backStarts = { ask: 3, hypothesize: 7, investigate: 8, reflect: 10 };
+check(
+  "back to Ask after Reflect: keep 7 messages, only ask's start stays",
+  dropFrom(backStarts, "hypothesize"),
+  { keep: 7, starts: { ask: 3 } },
+);
+check(
+  "Hypothesize not started yet: keep everything",
+  dropFrom({ ask: 3 }, "hypothesize"),
+  { keep: undefined, starts: { ask: 3 } },
+);
+check(
+  "a start of 0 still counts",
+  dropFrom({ ask: 0, hypothesize: 0 }, "hypothesize"),
+  { keep: 0, starts: { ask: 0 } },
+);
+check("the input isn't changed", backStarts, {
+  ask: 3,
+  hypothesize: 7,
+  investigate: 8,
+  reflect: 10,
+});
 
 console.log("\nnoticedLine — Observe's typed line");
 check(

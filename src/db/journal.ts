@@ -135,3 +135,25 @@ export async function listDashboardEntries(
    ORDER BY e.created_at DESC, e.id DESC`,
   );
 }
+
+export type EntrySummary = {
+  created_at: string;
+  photo_path: string | null;
+  child_question_text: string | null;
+};
+
+// The top of one entry's page: when it was saved, its photo and the question.
+// null when there's no entry with this id.
+export async function getEntrySummary(
+  db: SQLiteDatabase,
+  id: number,
+): Promise<EntrySummary | null> {
+  return db.getFirstAsync<EntrySummary>(
+    `SELECT e.created_at, o.photo_path, a.child_question_text
+   FROM journal_entries e
+   LEFT JOIN step_observe o ON o.journal_entry_id = e.id
+   LEFT JOIN step_ask     a ON a.journal_entry_id = e.id
+   WHERE e.id = ?`,
+    id,
+  );
+}
