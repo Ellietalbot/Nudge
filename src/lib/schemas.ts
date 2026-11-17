@@ -89,10 +89,16 @@ export const INVESTIGATE_SCHEMA = {
       type: "object",
       properties: {
         guessIdea: { type: "string" },
+        // Which kind of investigation fits the guess (see the prompt's
+        // "Choose the Kind of Investigation").
+        kind: {
+          type: "string",
+          enum: ["fairTest", "patternSeeking", "sorting", "watching"],
+        },
         change: { type: "string" },
         compare: { type: "string" },
       },
-      required: ["guessIdea", "change", "compare"],
+      required: ["guessIdea", "kind", "change", "compare"],
       additionalProperties: false,
     },
     question: { type: "string" },
