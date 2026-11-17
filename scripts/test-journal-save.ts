@@ -3,7 +3,12 @@
 // Run: npx tsx scripts/test-journal-save.ts
 import { DatabaseSync } from "node:sqlite";
 import type { SQLiteDatabase } from "expo-sqlite";
-import { getEntryChat, listEntries, saveExploration } from "../src/db/journal";
+import {
+  getEntryChat,
+  listDashboardEntries,
+  listEntries,
+  saveExploration,
+} from "../src/db/journal";
 import { schema } from "../src/db/schema";
 import type { JournalEntryData } from "../src/lib/journal-entry";
 
@@ -188,6 +193,49 @@ async function main() {
     entry.chat,
   );
   check("an id that doesn't exist → []", await getEntryChat(db, 99), []);
+
+  console.log("\nDashboard rows");
+  const dash = await listDashboardEntries(db);
+  check(
+    "newest first",
+    dash.map((r) => r.id),
+    [2, 1],
+  );
+  check(
+    "input types",
+    dash.map((r) => r.input_type),
+    ["text", "photo"],
+  );
+  check("text entry has no photo", dash[0].photo_path, null);
+  check(
+    "photo entry has every step's line",
+    {
+      noticed_text: dash[1].noticed_text,
+      child_question_text: dash[1].child_question_text,
+      hypothesis_text: dash[1].hypothesis_text,
+      experiment_text: dash[1].experiment_text,
+      finding_text: dash[1].finding_text,
+    },
+    {
+      noticed_text: entry.noticed,
+      child_question_text: entry.childQuestion,
+      hypothesis_text: entry.hypothesis,
+      experiment_text: entry.experiment,
+      finding_text: entry.finding,
+    },
+  );
+  check(
+    "message_count counts each entry's own chat",
+    dash.map((r) => r.message_count),
+    [3, 3],
+  );
+  await saveExploration(db, { ...entry, chat: [] });
+  const withEmpty = await listDashboardEntries(db);
+  check(
+    "an entry with no messages still shows, with 0",
+    { id: withEmpty[0].id, message_count: withEmpty[0].message_count },
+    { id: 3, message_count: 0 },
+  );
 
   console.log(failures === 0 ? "\nAll passed 🎉" : `\n${failures} failed`);
 }

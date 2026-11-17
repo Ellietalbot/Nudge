@@ -71,6 +71,19 @@ export type EntryRow = {
   finding_text: string | null;
 };
 
+export type DashboardRow = {
+  id: number;
+  created_at: string;
+  input_type: string;
+  photo_path: string | null;
+  noticed_text: string | null;
+  child_question_text: string | null;
+  hypothesis_text: string | null;
+  experiment_text: string | null;
+  finding_text: string | null;
+  message_count: number;
+};
+
 // One row per saved exploration, newest first: what the journal list shows.
 export async function listEntries(db: SQLiteDatabase): Promise<EntryRow[]> {
   return db.getAllAsync<EntryRow>(
@@ -94,5 +107,28 @@ export async function getEntryChat(
     WHERE journal_entry_id = ?
     ORDER BY id`,
     id,
+  );
+}
+
+// One row per saved exploration, newest first, with every step's main line
+// and the chat length: what the parent dashboard shows.
+export async function listDashboardEntries(
+  db: SQLiteDatabase,
+): Promise<DashboardRow[]> {
+  return db.getAllAsync<DashboardRow>(
+    `SELECT e.id, e.created_at, e.input_type, o.photo_path,
+      o.question_text AS noticed_text,
+      a.child_question_text,
+      h.hypothesis_text,
+      i.experiment_text,
+      r.finding_text,
+      (SELECT COUNT(*) FROM chat_messages c WHERE c.journal_entry_id = e.id) AS message_count
+   FROM journal_entries e
+   LEFT JOIN step_observe     o ON o.journal_entry_id = e.id
+   LEFT JOIN step_ask         a ON a.journal_entry_id = e.id
+   LEFT JOIN step_hypothesize h ON h.journal_entry_id = e.id
+   LEFT JOIN step_investigate i ON i.journal_entry_id = e.id
+   LEFT JOIN step_reflect     r ON r.journal_entry_id = e.id
+   ORDER BY e.created_at DESC, e.id DESC`,
   );
 }
