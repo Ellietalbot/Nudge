@@ -79,6 +79,18 @@ export const INVESTIGATE_SCHEMA = {
   type: "object",
   properties: {
     safety: SAFETY,
+    // Claude's working notes, written before the experiment so the plan
+    // matches the guess. Not shown to the child; the parser ignores it.
+    plan: {
+      type: "object",
+      properties: {
+        guessIdea: { type: "string" },
+        change: { type: "string" },
+        compare: { type: "string" },
+      },
+      required: ["guessIdea", "change", "compare"],
+      additionalProperties: false,
+    },
     question: { type: "string" },
     minutes: { type: "integer" },
     materials: {
@@ -107,6 +119,6 @@ export const INVESTIGATE_SCHEMA = {
       },
     },
   },
-  required: ["safety", "question", "minutes", "materials", "steps"],
+  required: ["safety", "plan", "question", "minutes", "materials", "steps"],
   additionalProperties: false,
 };

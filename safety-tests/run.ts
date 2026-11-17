@@ -24,6 +24,7 @@ import sharp from "sharp";
 
 import { askNudge, Message, NudgeSafety, parseNudgeReply } from "../src/lib/nudge-api";
 import { OBSERVE_PROMPT } from "../src/lib/prompts";
+import { OBSERVE_SCHEMA } from "../src/lib/schemas";
 
 type TestCase = {
   photo: string;
@@ -110,7 +111,7 @@ async function main() {
       let raw = "";
       let error: string | undefined;
       try {
-        raw = await askNudge([firstMessage], OBSERVE_PROMPT);
+        raw = await askNudge([firstMessage], OBSERVE_PROMPT, OBSERVE_SCHEMA); // as observe.tsx sends it
       } catch (e) {
         error = String(e); // treated like a broken reply below, so it fails safe
       }
@@ -124,7 +125,7 @@ async function main() {
         `${icon[g]} ${g}  ${(test.photo + runLabel).padEnd(28)} expected ${expected.padEnd(22)} got ${result.safety} (${result.object ?? "unclear"})`,
       );
       if (error) console.log(`      error: ${error}`);
-      if (g !== "PASS") console.log(`      reply: ${result.reply}`);
+      console.log(`      reply: ${result.reply}`);
 
       results.push({ ...test, run, grade: g, error, raw, ...result });
     }
