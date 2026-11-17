@@ -1,4 +1,5 @@
 import PinGate from "@/components/pin-gate";
+import { LockContext } from "@/lib/lock";
 import { Stack, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 
@@ -15,5 +16,9 @@ export default function GrownUpsLayout() {
   );
 
   if (!unlocked) return <PinGate onUnlock={() => setUnlocked(true)} />;
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <LockContext.Provider value={() => setUnlocked(false)}>
+      <Stack screenOptions={{ headerShown: false }} />
+    </LockContext.Provider>
+  );
 }

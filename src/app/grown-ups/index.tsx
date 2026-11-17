@@ -1,8 +1,9 @@
 import { Screen } from "@/components/screen";
 import { listDashboardEntries, type DashboardRow } from "@/db/journal";
-import { Text, palette, radius, shadow, space } from "@/design-system";
+import { Button, Text, palette, radius, shadow, space } from "@/design-system";
 import { useChildName } from "@/lib/child-name";
 import { formatEntryDate } from "@/lib/journal-entry";
+import { useLock } from "@/lib/lock";
 import { router, useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
@@ -12,6 +13,7 @@ export default function Dashboard() {
   const name = useChildName();
   const [entries, setEntries] = useState<DashboardRow[]>([]);
   const db = useSQLiteContext();
+  const lock = useLock();
 
   useFocusEffect(
     useCallback(() => {
@@ -28,7 +30,7 @@ export default function Dashboard() {
         {name ?? "Your explorer"} has saved {entries.length}{" "}
         {entries.length === 1 ? "exploration" : "explorations"}.
       </Text>
-
+      <Button label="Lock" variant="secondary" onPress={lock} />
       {entries.length === 0 ? (
         <Text variant="body">
           Nothing saved yet. Explorations show up here once they're saved to the
