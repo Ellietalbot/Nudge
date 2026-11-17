@@ -1,15 +1,13 @@
 import { Screen } from "@/components/screen";
 import { Button, Text, palette } from "@/design-system";
+import { useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useCallback, useState } from "react";
-import { useFocusEffect } from "expo-router";
 import { StyleSheet, TextInput } from "react-native";
 
+export default function PinGate({ onUnlock }: { onUnlock: () => void }) {
+  const [mode, setMode] = useState<"loading" | "setup" | "enter">("loading");
 
-export default function GrownUps() {
-  const [mode, setMode] = useState<"loading" | "setup" | "enter" | "unlocked">(
-    "loading",
-  );
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   useFocusEffect(
@@ -47,7 +45,7 @@ export default function GrownUps() {
             reason="Type 4 numbers first."
             onPress={async () => {
               await SecureStore.setItemAsync("parentPin", pin);
-              setMode("unlocked");
+              onUnlock();
             }}
           />
         </>
@@ -71,7 +69,7 @@ export default function GrownUps() {
             onPress={async () => {
               const savedPin = await SecureStore.getItemAsync("parentPin");
               if (savedPin === pin) {
-                setMode("unlocked");
+                onUnlock();
               } else {
                 setError("That PIN didn't match. Try again.");
                 setPin("");
@@ -80,7 +78,6 @@ export default function GrownUps() {
           />
         </>
       )}
-      {mode === "unlocked" && <Text variant="heading">Grown-Ups Only</Text>}
     </Screen>
   );
 }
