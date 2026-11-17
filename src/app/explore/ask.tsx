@@ -5,6 +5,8 @@ import {
   BackLink,
   Button,
   ErrorState,
+  QuickReplies,
+  type QuickReply,
   SafetyCard,
   StepProgress,
   TextField,
@@ -23,6 +25,8 @@ import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Keyboard, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const GUESS_REPLY = "I have a guess!";
 
 export default function Ask() {
   const {
@@ -91,8 +95,8 @@ export default function Ask() {
     getNudgeReply();
   }, [attempt]);
 
-  function send() {
-    const trimmed = text.trim();
+  function send(said: string = text) {
+    const trimmed = said.trim();
     if (!trimmed || status === "loading") return;
 
     // Back from Hypothesize (or later) and asking more: the old guess and
@@ -110,6 +114,20 @@ export default function Ask() {
 
   const showNext =
     (ready || askTurns >= 3) && safety !== "stop" && status !== "loading";
+
+  // Tap-to-answer after Nudge asks something. The forward reply takes the
+  // place of the Next button; while typing, the button comes back instead.
+  const lastMessage = messages[messages.length - 1];
+  const showReplies =
+    status === "ready" &&
+    safety !== "stop" &&
+    lastMessage?.role === "assistant" &&
+    !keyboardOpen &&
+    !text.trim();
+  const replies: QuickReply[] = [
+    ...(showNext ? [{ label: GUESS_REPLY, forward: "hypothesize" as const }] : []),
+    { label: "I'm not sure" },
+  ];
 
   return (
     <Screen scroll={false}>
@@ -145,11 +163,21 @@ export default function Ask() {
           />
         )}
         {safety === "stop" && <SafetyCard level="stop" />}
-        {showNext && (
-          <Button
-            label="Next: make a guess"
-            onPress={() => router.push("/explore/hypothesize")}
+        {showReplies ? (
+          <QuickReplies
+            replies={replies}
+            onPick={(label) => {
+              if (label === GUESS_REPLY) router.push("/explore/hypothesize");
+              else send(label);
+            }}
           />
+        ) : (
+          showNext && (
+            <Button
+              label="Next: make a guess"
+              onPress={() => router.push("/explore/hypothesize")}
+            />
+          )
         )}
         {status !== "error" && safety !== "stop" && (
           <View
@@ -170,7 +198,7 @@ export default function Ask() {
             </View>
             <Button
               label="Send"
-              onPress={send}
+              onPress={() => send()}
               disabled={!text.trim() || status === "loading"}
             />
           </View>

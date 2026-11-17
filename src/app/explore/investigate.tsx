@@ -9,6 +9,7 @@ import {
   ThinkingState,
 } from "@/design-system";
 import { ERROR_COPY } from "@/lib/error-copy";
+import { gotItParams, useGotItFromParams } from "@/lib/got-it";
 import { useExploration } from "@/lib/exploration-context";
 import {
   parseInvestigationReply,
@@ -40,6 +41,7 @@ export default function Investigate() {
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
   const [result, setResult] = useState<InvestigationResult | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const gotIt = useGotItFromParams();
 
   const start = stepStarts.investigate ?? messages.length;
   const guess = messages[start - 1]; // the "I think…" message from Hypothesize
@@ -96,7 +98,10 @@ export default function Investigate() {
       },
       { role: "user", content: "I did it!" },
     );
-    router.push("/explore/reflect");
+    router.push({
+      pathname: "/explore/reflect",
+      params: gotItParams("Experiment done!"),
+    });
   }
 
   // 5 + 6. JSX without quotes, one branch per state.
@@ -144,7 +149,7 @@ export default function Investigate() {
   }
 
   return (
-    <Screen>
+    <Screen overlay={gotIt}>
       <View>
         <BackLink onPress={() => router.back()} />
         <StepProgress current={3} />

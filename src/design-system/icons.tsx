@@ -37,6 +37,7 @@ export const IconStop = make(<><Rect x="4" y="4" width="16" height="16" rx="3"/>
 export const IconCheck = make(<><Polyline points="20 6 9 17 4 12"/></>, { strokeWidth: 3 });
 export const IconStar = make(<><Polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></>, { solid: true });
 export const IconLock = make(<><Rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><Path d="M7 11V7a5 5 0 0 1 10 0v4"/></>);
+export const IconBackspace = make(<><Path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><Line x1="18" y1="9" x2="12" y2="15"/><Line x1="12" y1="9" x2="18" y2="15"/></>);
 export const IconInfo = make(<><Circle cx="12" cy="12" r="10"/><Path d="M12 16v-4M12 8h.01"/></>);
 export const IconChip = make(<><Rect x="5" y="5" width="14" height="14" rx="3"/><Path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></>);
 export const IconMapPin = make(<><Path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><Circle cx="12" cy="10" r="3"/></>);

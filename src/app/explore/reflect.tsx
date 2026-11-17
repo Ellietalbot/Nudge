@@ -5,11 +5,13 @@ import {
   BackLink,
   Button,
   ErrorState,
+  QuickReplies,
   SafetyCard,
   StepProgress,
   TextField,
 } from "@/design-system";
 import { ERROR_COPY } from "@/lib/error-copy";
+import { gotItParams, useGotItFromParams } from "@/lib/got-it";
 import { saveExploration } from "@/db/journal";
 import { useExploration } from "@/lib/exploration-context";
 import { buildEntry } from "@/lib/journal-entry";
@@ -53,6 +55,7 @@ export default function Reflect() {
   const [keyboardOpen, setKeyboardOpen] = useState(false);
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
   const insets = useSafeAreaInsets();
+  const gotIt = useGotItFromParams();
 
   useEffect(() => {
     startStep("reflect");
@@ -101,8 +104,8 @@ export default function Reflect() {
     getNudgeReply();
   }, [attempt]);
 
-  function send() {
-    const trimmed = text.trim();
+  function send(said: string = text) {
+    const trimmed = said.trim();
     if (!trimmed || status === "loading") return;
 
     addMessages({ role: "user", content: trimmed });
@@ -123,7 +126,10 @@ export default function Reflect() {
         `Saved journal entry ${id}: ${entry.chat.length} messages, photo ${photoPath ?? "none"}`,
       );
       router.dismissAll(); // Explore tab back to its first screen
-      router.navigate("/journal");
+      router.navigate({
+        pathname: "/journal",
+        params: gotItParams("Saved to your journal!"),
+      });
       reset(); // after leaving, so Reflect doesn't flash an empty chat
     } catch (error) {
       console.error("Saving the journal entry failed:", error);
@@ -139,11 +145,20 @@ export default function Reflect() {
     .slice(stepStarts.reflect ?? messages.length)
     .filter((m) => m.role === "user").length;
 
+  // Tap-to-answer, after Nudge has asked something. Hidden while typing.
+  const lastMessage = messages[messages.length - 1];
+  const showReplies =
+    status === "ready" &&
+    safety !== "stop" &&
+    lastMessage?.role === "assistant" &&
+    !keyboardOpen &&
+    !text.trim();
+
   const showSave =
     (ready || reflectTurns >= 4) && safety !== "stop" && status !== "loading";
 
   return (
-    <Screen scroll={false}>
+    <Screen scroll={false} overlay={gotIt}>
       <KeyboardAvoidingView
         style={{ flex: 1, gap: 8 }}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -190,6 +205,12 @@ export default function Reflect() {
             disabled={saving}
           />
         )}
+        {showReplies && (
+          <QuickReplies
+            replies={[{ label: "I'm not sure" }, { label: "Can you explain it?" }]}
+            onPick={(label) => send(label)}
+          />
+        )}
         {status !== "error" && safety !== "stop" && (
           <View
             style={{
@@ -209,7 +230,7 @@ export default function Reflect() {
             </View>
             <Button
               label="Send"
-              onPress={send}
+              onPress={() => send()}
               disabled={!text.trim() || status === "loading"}
             />
           </View>

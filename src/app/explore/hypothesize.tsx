@@ -9,6 +9,7 @@ import {
   StepProgress,
 } from "@/design-system";
 import { ERROR_COPY } from "@/lib/error-copy";
+import { gotItParams } from "@/lib/got-it";
 import { useExploration } from "@/lib/exploration-context";
 import {
   frameToParts,
@@ -86,7 +87,10 @@ export default function Hypothesize() {
   function handleDone(sentence: string) {
     trimTo(start); // replace an earlier guess instead of adding a second one
     addMessages({ role: "user", content: sentence });
-    router.push("/explore/investigate");
+    router.push({
+      pathname: "/explore/investigate",
+      params: gotItParams("Your guess is saved!"),
+    });
   }
 
   let dock = null;

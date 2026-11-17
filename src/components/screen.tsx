@@ -5,9 +5,12 @@ import { palette, space } from "@/design-system";
 export function Screen({
   children,
   scroll = true,
+  overlay,
 }: {
   children: React.ReactNode;
   scroll?: boolean;
+  /** Floats above the content and doesn't scroll, e.g. a GotIt from useGotIt(). */
+  overlay?: React.ReactNode;
 }) {
   return (
     <SafeAreaView style={styles.screen} edges={["top"]}>
@@ -24,6 +27,7 @@ export function Screen({
         // TODO: a <View> with style={styles.fixed} and {children} inside
         <View style={styles.fixed}>{children}</View>
       )}
+      {overlay}
     </SafeAreaView>
   );
 }

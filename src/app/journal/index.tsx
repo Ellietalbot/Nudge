@@ -7,6 +7,7 @@ import {
   space,
 } from "@/design-system";
 import { useChildName } from "@/lib/child-name";
+import { useGotItFromParams } from "@/lib/got-it";
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
@@ -19,6 +20,7 @@ export default function Journal() {
   const name = useChildName();
   const [entries, setEntries] = useState<EntryRow[]>([]);
   const db = useSQLiteContext();
+  const gotIt = useGotItFromParams();
 
   useFocusEffect(
     useCallback(() => {
@@ -31,7 +33,7 @@ export default function Journal() {
   );
 
   return (
-    <Screen>
+    <Screen overlay={gotIt}>
       <JournalCover name={name ?? "Explorer"} found={entries.length} />
       {entries.length === 0 ? (
         <EmptyState

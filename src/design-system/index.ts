@@ -28,3 +28,4 @@ export * from './States';
 export * from './Paper';
 export * from './Journal';
 export * from './Investigation';
+export * from './PinPad';
