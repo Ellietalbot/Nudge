@@ -4,6 +4,7 @@ import {
   currentSessionSeconds,
   endSession,
   formatDuration,
+  startOfToday,
   startSession,
 } from "../src/lib/usage";
 
@@ -40,6 +41,21 @@ check("end it", endSession(at(300)), {
 });
 check("second end does nothing", endSession(at(301)), null);
 check("stopped", currentSessionSeconds(at(400)), 0);
+
+console.log("\ntoday only");
+process.env.TZ = "America/Boise"; // same answer on any computer
+const lateNight = new Date(2026, 10, 18, 23, 58); // Nov 18, 11:58 pm
+const afterMidnight = new Date(2026, 10, 19, 0, 3); // Nov 19, 12:03 am
+const midnight = startOfToday(afterMidnight);
+check("midnight", midnight.getHours() + ":" + midnight.getDate(), "0:19");
+startSession(lateNight);
+check(
+  "open over midnight: only after midnight counts",
+  currentSessionSeconds(afterMidnight, midnight),
+  180,
+);
+check("without since: all of it", currentSessionSeconds(afterMidnight), 300);
+endSession();
 
 console.log(failures ? `\n❌ ${failures} failed` : "\n✅ All passed");
 if (failures) process.exit(1);

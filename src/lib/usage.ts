@@ -19,10 +19,20 @@ export function endSession(
   return session;
 }
 
-// Seconds in the running session so far, or 0 if none is running.
-export function currentSessionSeconds(now: Date = new Date()): number {
+// Seconds in the running session so far, or 0 if none is running. With
+// `since`, only the part after it counts (the app was open over midnight).
+export function currentSessionSeconds(
+  now: Date = new Date(),
+  since?: Date,
+): number {
   if (sessionStart === null) return 0;
-  return (now.getTime() - sessionStart.getTime()) / 1000;
+  const from = Math.max(sessionStart.getTime(), since?.getTime() ?? 0);
+  return Math.max(0, (now.getTime() - from) / 1000);
+}
+
+// Midnight at the start of `now`'s day, in the phone's own time zone.
+export function startOfToday(now: Date = new Date()): Date {
+  return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
 
 // "Less than a minute", "1 minute", "25 minutes", "1 hour 5 minutes".
