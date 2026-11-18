@@ -1,11 +1,13 @@
 import { Screen } from "@/components/screen";
 import { listDashboardEntries, type DashboardRow } from "@/db/journal";
+import { totalUsageSeconds } from "@/db/usage";
 import { Button, Text, palette, radius, shadow, space } from "@/design-system";
 import { getCameraEnabled, setCameraEnabled } from "@/lib/camera-setting";
 import { useChildName } from "@/lib/child-name";
 import { formatEntryDate } from "@/lib/journal-entry";
 import { useLock } from "@/lib/lock";
 import type { NudgeSafety } from "@/lib/nudge-api";
+import { currentSessionSeconds, formatDuration } from "@/lib/usage";
 import { router, useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
@@ -18,6 +20,7 @@ export default function Dashboard() {
   const lock = useLock();
 
   const [cameraOn, setCameraOn] = useState(getCameraEnabled);
+  const [usageSeconds, setUsageSeconds] = useState(0);
 
   function toggleCamera(on: boolean) {
     setCameraEnabled(on); // save it on the device
@@ -29,6 +32,9 @@ export default function Dashboard() {
       listDashboardEntries(db)
         .then(setEntries)
         .catch((error) => console.warn("Couldn't load the dashboard:", error));
+      totalUsageSeconds(db)
+        .then((saved) => setUsageSeconds(saved + currentSessionSeconds()))
+        .catch((error) => console.warn("Couldn't load app time:", error));
     }, [db]),
   );
 
@@ -38,6 +44,9 @@ export default function Dashboard() {
       <Text variant="body" color={palette.navyMuted}>
         {name ?? "Your explorer"} has saved {entries.length}{" "}
         {entries.length === 1 ? "exploration" : "explorations"}.
+      </Text>
+      <Text variant="body" color={palette.navyMuted}>
+        Time in Nudge: {formatDuration(usageSeconds)}
       </Text>
       <Button label="Lock" variant="secondary" onPress={lock} />
       <View style={styles.settingRow}>

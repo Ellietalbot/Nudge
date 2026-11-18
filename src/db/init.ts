@@ -1,5 +1,5 @@
 import type { SQLiteDatabase } from "expo-sqlite";
-import { migrationV2, schema } from "./schema";
+import { migrationV2, migrationV3, schema } from "./schema";
 
 // Brings the database up to the current version. `user_version` remembers
 // which steps already ran, so each one runs once per phone.
@@ -18,5 +18,9 @@ export async function initDb(db: SQLiteDatabase) {
   if (version < 2) {
     await db.execAsync(migrationV2);
   }
-  await db.execAsync("PRAGMA user_version = 2;");
+  // v3 adds usage_sessions.
+  if (version < 3) {
+    await db.execAsync(migrationV3);
+  }
+  await db.execAsync("PRAGMA user_version = 3;");
 }

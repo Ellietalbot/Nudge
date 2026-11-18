@@ -67,3 +67,10 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 export const migrationV2 = `ALTER TABLE journal_entries
   ADD COLUMN safety_level TEXT NOT NULL DEFAULT 'none'
   CHECK (safety_level IN ('none', 'caution', 'askAdult', 'doNotTouch', 'stop'));`;
+
+export const migrationV3 = `CREATE TABLE IF NOT EXISTS usage_sessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  started_at TEXT NOT NULL,
+  ended_at TEXT NOT NULL,
+  CHECK (ended_at >= started_at)
+);`;

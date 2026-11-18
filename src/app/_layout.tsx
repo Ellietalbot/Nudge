@@ -1,6 +1,7 @@
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import AppTabs from "@/components/app-tabs";
 import SetupScreen from "@/components/setup-screen";
+import { UsageTracker } from "@/components/usage-tracker";
 import { initDb } from "@/db/init";
 import { useNudgeFonts } from "@/design-system";
 import { ChildNameContext } from "@/lib/child-name";
@@ -27,6 +28,7 @@ export default function TabLayout() {
       <ChildNameContext.Provider value={name}>
         <SQLiteProvider databaseName="nudge.db" onInit={initDb}>
           <AnimatedSplashOverlay />
+          <UsageTracker />
           <AppTabs />
         </SQLiteProvider>
       </ChildNameContext.Provider>
