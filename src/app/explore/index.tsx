@@ -1,6 +1,7 @@
 import Onboarding from "@/components/onboarding";
 import { Screen } from "@/components/screen";
 import { AIDisclosure } from "@/design-system";
+import { getCameraEnabled } from "@/lib/camera-setting";
 import { router } from "expo-router";
 import Storage from "expo-sqlite/kv-store";
 import { useState } from "react";
@@ -18,7 +19,13 @@ export default function Index() {
   }
   return (
     <Screen>
-      <AIDisclosure onDone={() => router.push("/explore/camera")} />
+      <AIDisclosure
+        onDone={() =>
+          router.push(
+            getCameraEnabled() ? "/explore/camera" : "/explore/observe",
+          )
+        }
+      />
     </Screen>
   );
 }

@@ -1,20 +1,28 @@
 import { Screen } from "@/components/screen";
 import { listDashboardEntries, type DashboardRow } from "@/db/journal";
 import { Button, Text, palette, radius, shadow, space } from "@/design-system";
+import { getCameraEnabled, setCameraEnabled } from "@/lib/camera-setting";
 import { useChildName } from "@/lib/child-name";
 import { formatEntryDate } from "@/lib/journal-entry";
-import type { NudgeSafety } from "@/lib/nudge-api";
 import { useLock } from "@/lib/lock";
+import type { NudgeSafety } from "@/lib/nudge-api";
 import { router, useFocusEffect } from "expo-router";
 import { useSQLiteContext } from "expo-sqlite";
 import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, Switch, View } from "react-native";
 
 export default function Dashboard() {
   const name = useChildName();
   const [entries, setEntries] = useState<DashboardRow[]>([]);
   const db = useSQLiteContext();
   const lock = useLock();
+
+  const [cameraOn, setCameraOn] = useState(getCameraEnabled);
+
+  function toggleCamera(on: boolean) {
+    setCameraEnabled(on); // save it on the device
+    setCameraOn(on); // update the screen
+  }
 
   useFocusEffect(
     useCallback(() => {
@@ -32,6 +40,21 @@ export default function Dashboard() {
         {entries.length === 1 ? "exploration" : "explorations"}.
       </Text>
       <Button label="Lock" variant="secondary" onPress={lock} />
+      <View style={styles.settingRow}>
+        <View style={{ flex: 1 }}>
+          <Text variant="label">Camera</Text>
+          <Text variant="body" color={palette.navyMuted}>
+            {cameraOn
+              ? `${name ?? "Your explorer"} can take photos.`
+              : `${name ?? "Your explorer"} can only type questions.`}
+          </Text>
+        </View>
+        <Switch
+          value={cameraOn}
+          onValueChange={toggleCamera}
+          accessibilityLabel="Camera"
+        />
+      </View>
       {entries.length === 0 ? (
         <Text variant="body">
           Nothing saved yet. Explorations show up here once they're saved to the
@@ -105,4 +128,5 @@ const styles = StyleSheet.create({
     boxShadow: shadow.card,
   },
   pressed: { opacity: 0.7 },
+  settingRow: { flexDirection: "row", alignItems: "center", gap: space[3] },
 });

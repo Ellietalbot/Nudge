@@ -25,6 +25,7 @@ import { OBSERVE_SCHEMA } from "@/lib/schemas";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Image, View } from "react-native";
+import { getCameraEnabled } from "@/lib/camera-setting";
 // Photos Nudge can't explore: show the reply and a retake button instead of the text box.
 const RETAKE_OBJECTS = ["unclear", "person", "private"];
 
@@ -169,7 +170,7 @@ export default function Observe() {
         stepId="observe"
         question={status === "ready" ? reply : "What do you notice?"}
         example="that the leaves are changing color."
-        photo={!photoUri}
+        photo={!photoUri && getCameraEnabled()}
         onAddPhoto={() => router.push("/explore/camera")}
         value={text}
         onChangeText={setText}
