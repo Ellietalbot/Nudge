@@ -18,7 +18,7 @@ import {
   NudgeSafety,
   parseNudgeReply,
 } from "@/lib/nudge-api";
-import { noticedLine } from "@/lib/noticed";
+import { foundLine } from "@/lib/noticed";
 import { preparePhoto } from "@/lib/photo";
 import { OBSERVE_PROMPT } from "@/lib/prompts";
 import { OBSERVE_SCHEMA } from "@/lib/schemas";
@@ -35,7 +35,6 @@ export default function Observe() {
   const [safety, setSafety] = useState<NudgeSafety>("none");
   const [object, setObject] = useState("");
   const [attempt, setAttempt] = useState(0);
-  const [photoMessage, setPhotoMessage] = useState<Message | null>(null);
   const { photoUri } = useLocalSearchParams<{ photoUri?: string }>();
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">(
     photoUri ? "loading" : "idle",
@@ -82,13 +81,27 @@ export default function Observe() {
         const result = parseNudgeReply(raw);
 
         console.log("Nudge says (Observe):", result);
-        if (!cancelled) {
-          setReply(result.reply);
-          setSafety(result.safety);
-          setObject(result.object ?? "unclear"); // no object = can't explore, ask for a retake
-          setPhotoMessage(firstMessage);
-          setStatus("ready");
+        if (cancelled) return;
+        const found = result.object ?? "unclear"; // no object = can't explore, ask for a retake
+        if (result.safety !== "stop" && !RETAKE_OBJECTS.includes(found)) {
+          // Nudge understood the photo, so the chat carries on in Ask, where the
+          // child answers Nudge's "What do you notice?". `replace` so Back from
+          // Ask goes to the camera (Observe), not this loading screen.
+          reset();
+          raiseSafety(result.safety); // after reset(), which sets it back to "none"
+          addMessages(firstMessage, {
+            role: "assistant",
+            content: result.reply,
+          });
+          setPhotoUri(uri);
+          router.replace("/explore/ask");
+          return;
         }
+        // Retake or stop: stay here and show Nudge's reply.
+        setReply(result.reply);
+        setSafety(result.safety);
+        setObject(found);
+        setStatus("ready");
       } catch (error) {
         if (!cancelled) {
           console.error(error);
@@ -105,23 +118,12 @@ export default function Observe() {
     };
   }, [photoUri, attempt]);
 
+  // Typed start (no photo): what the child found becomes the first message.
   function handleSave() {
     const trimmed = text.trim();
     if (!trimmed) return;
     reset();
-    raiseSafety(safety); // after reset(), which sets it back to "none"
-    const messages: Message[] = [];
-    if (photoMessage) {
-      messages.push(
-        photoMessage,
-        { role: "assistant", content: reply },
-        { role: "user", content: noticedLine(trimmed) },
-      );
-    } else {
-      messages.push({ role: "user", content: noticedLine(trimmed) });
-    }
-    addMessages(...messages);
-    setPhotoUri(photoUri ?? null);
+    addMessages({ role: "user", content: foundLine(trimmed) });
     router.push("/explore/ask");
   }
   let card;
@@ -168,8 +170,9 @@ export default function Observe() {
     card = (
       <PromptCard
         stepId="observe"
-        question={status === "ready" ? reply : "What do you notice?"}
-        example="that the leaves are changing color."
+        question="What did you find?"
+        starter="I found"
+        example="a ladybug on my window."
         photo={!photoUri && getCameraEnabled()}
         onAddPhoto={() => router.push("/explore/camera")}
         value={text}

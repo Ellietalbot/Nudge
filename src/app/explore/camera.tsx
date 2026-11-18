@@ -1,9 +1,9 @@
 import { Screen } from "@/components/screen";
-import { Button, Text } from "@/design-system";
+import { BackLink, Button, StepProgress, Text } from "@/design-system";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { router } from "expo-router";
 import { useRef, useState } from "react";
-import { Image, Linking } from "react-native";
+import { Image, Linking, View } from "react-native";
 
 export default function Camera() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -20,12 +20,14 @@ export default function Camera() {
   if (permission === null) {
     return (
       <Screen>
+        <ObserveHeader />
         <Text variant="heading">Checking the camera…</Text>
       </Screen>
     );
   } else if (permission.granted === false && permission.canAskAgain === true) {
     return (
       <Screen>
+        <ObserveHeader />
         <Text variant="heading">Nudge wants to see what you found!</Text>
         <Text variant="body">
           Nudge uses the camera to look at things with you.
@@ -41,6 +43,7 @@ export default function Camera() {
   } else if (permission.granted === false && permission.canAskAgain === false) {
     return (
       <Screen>
+        <ObserveHeader />
         <Text variant="heading">Nudge can't see yet.</Text>
         <Text variant="body">Ask a grown-up to turn it on.</Text>
         <Button
@@ -58,6 +61,7 @@ export default function Camera() {
     if (photoUri) {
       return (
         <Screen>
+          <ObserveHeader onBack={() => setPhotoUri(null)} />
           <Image source={{ uri: photoUri }} style={{ height: 420 }} />
           <Text variant="body">Is this what you found?</Text>
           <Button
@@ -79,6 +83,7 @@ export default function Camera() {
     }
     return (
       <Screen>
+        <ObserveHeader />
         <CameraView ref={cameraRef} style={{ height: 420 }} />
         <Button label="Take photo" onPress={takePhoto} />
         <Button
@@ -89,4 +94,20 @@ export default function Camera() {
       </Screen>
     );
   }
+}
+
+// Taking the photo (or choosing to type) is the Observe step, so the camera
+// shows step 1 and a way back, like the other steps. On the "Is this what you
+// found?" check, Back returns to the live camera instead.
+function ObserveHeader({
+  onBack = () => router.back(),
+}: {
+  onBack?: () => void;
+}) {
+  return (
+    <View>
+      <BackLink onPress={onBack} />
+      <StepProgress current={0} />
+    </View>
+  );
 }

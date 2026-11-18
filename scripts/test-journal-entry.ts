@@ -1,7 +1,7 @@
 // Checks the journal helpers with fake explorations — no phone, no database, no API.
 // Run: npx tsx scripts/test-journal-entry.ts
 import type { Message } from "../src/lib/nudge-api";
-import { noticedLine } from "../src/lib/noticed";
+import { foundLine, noticedLine } from "../src/lib/noticed";
 import { dropFrom } from "../src/lib/step-starts";
 import type { ChatLine } from "../src/lib/journal-entry";
 import {
@@ -198,6 +198,28 @@ check(
   "extra spaces trimmed",
   noticedLine("  red leaves "),
   "I noticed red leaves",
+);
+
+console.log("\nfoundLine — Observe's typed start");
+check(
+  "plain text",
+  foundLine("A ladybug on my window"),
+  "I found a ladybug on my window",
+);
+check(
+  "already starts with I found",
+  foundLine("i found a rock"),
+  "I found a rock",
+);
+check(
+  "starts with I",
+  foundLine("I think it's a bug"),
+  "I found I think it's a bug",
+);
+check(
+  "found isn't matched mid-word",
+  foundLine("I foundry"),
+  "I found I foundry",
 );
 
 console.log("\nformatEntryDate (as a phone in Boise sees it)");

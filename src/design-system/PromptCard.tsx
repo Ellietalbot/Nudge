@@ -18,6 +18,8 @@ export type PromptCardProps = {
   question: string;
   /** Example answer that finishes the starter, e.g. "they grow in a ring" (no "Like:", because the starter comes first). */
   example: string;
+  /** Sentence starter in the field. Defaults to the step's, e.g. "I noticed". */
+  starter?: string;
   /** Show "Add a photo" (Observe). */
   photo?: boolean;
   value?: string;
@@ -35,7 +37,7 @@ export const answerMethod: Record<StepId, string> = {
   reflect: 'Type it, then it saves to the journal',
 };
 
-export function PromptCard({ stepId, question, example, photo, value, onChangeText, onSave, onAddPhoto }: PromptCardProps) {
+export function PromptCard({ stepId, question, example, starter, photo, value, onChangeText, onSave, onAddPhoto }: PromptCardProps) {
   const s = getStep(stepId);
   const placeholder = example;
   return (
@@ -50,7 +52,7 @@ export function PromptCard({ stepId, question, example, photo, value, onChangeTe
       <TextField
         label={question}
         hideLabel
-        starter={s.prompt}
+        starter={starter ?? s.prompt}
         starterColor={s.text}
         placeholder={placeholder}
         value={value}

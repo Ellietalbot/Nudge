@@ -49,8 +49,11 @@ export default function Ask() {
   const [errorKind, setErrorKind] = useState<NudgeErrorKind>("server");
   const insets = useSafeAreaInsets();
 
+  // Typed start: the child's words were Observe, so Ask starts now. Photo
+  // start: Nudge has just asked what they notice, and their answer still
+  // belongs to Observe, so Ask starts after it (see send()).
   useEffect(() => {
-    startStep("ask");
+    if (messages[messages.length - 1]?.role === "user") startStep("ask");
   }, []);
 
   useEffect(() => {
@@ -103,6 +106,9 @@ export default function Ask() {
     // anything after it no longer fit, so those steps start over.
     dropStepsFrom("hypothesize");
     addMessages({ role: "user", content: trimmed });
+    // First answer after a photo: that answer is the child's noticing (Observe);
+    // Ask starts with Nudge's reply to it.
+    if (stepStarts.ask === undefined) startStep("ask", messages.length + 1);
     setText("");
     started.current = false; // allow the effect to call Nudge again
     setStatus("loading");
@@ -125,7 +131,9 @@ export default function Ask() {
     !keyboardOpen &&
     !text.trim();
   const replies: QuickReply[] = [
-    ...(showNext ? [{ label: GUESS_REPLY, forward: "hypothesize" as const }] : []),
+    ...(showNext
+      ? [{ label: GUESS_REPLY, forward: "hypothesize" as const }]
+      : []),
     { label: "I'm not sure" },
   ];
 

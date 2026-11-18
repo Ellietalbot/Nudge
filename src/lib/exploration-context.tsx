@@ -11,7 +11,7 @@ type Exploration = {
   addMessages: (...newMessages: Message[]) => void;
   trimTo: (length: number) => void;
   stepStarts: StepStarts;
-  startStep: (stepId: StepId) => void;
+  startStep: (stepId: StepId, at?: number) => void;
   dropStepsFrom: (stepId: StepId) => void;
   reset: () => void;
   photoUri: string | null;
@@ -44,11 +44,12 @@ export function ExplorationProvider({
 
   // Saved only the first time, so a step's start never moves when the child
   // leaves the screen and comes back. `!== undefined` because a start can be 0.
-  function startStep(stepId: StepId) {
+  // `at` defaults to the next message; Ask passes its own (see ask.tsx).
+  function startStep(stepId: StepId, at?: number) {
     setStepStarts((prev) =>
       prev[stepId] !== undefined
         ? prev
-        : { ...prev, [stepId]: messages.length },
+        : { ...prev, [stepId]: at ?? messages.length },
     );
   }
 
